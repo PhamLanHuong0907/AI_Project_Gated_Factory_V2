@@ -1,0 +1,29 @@
+version: 2
+stages:
+  - id: AUTO_01A
+    name: Requirement intake and normalization
+    gate: REQUIREMENT_GATE
+  - id: AUTO_01B
+    name: Architecture database and API contract
+    gate: CONTRACT_GATE
+  - id: AUTO_01C
+    name: Screen architecture and specifications
+    gate: SCREEN_GATE
+  - id: AUTO_01D
+    name: Stitch prompt generation
+    gate: STITCH_PROMPT_GATE
+  - id: HUMAN_STITCH
+    name: Human visual design and approval
+    gate: STITCH_APPROVAL_GATE
+  - id: AUTO_02A
+    name: Stitch verification and design handoff
+    gate: DESIGN_HANDOFF_GATE
+  - id: AUTO_02B
+    name: Visual proof screen implementation
+    gate: VISUAL_PROOF_GATE
+  - id: AUTO_02C
+    name: Full frontend backend and integration
+    gate: IMPLEMENTATION_GATE
+  - id: AUTO_02D
+    name: Test build docker UAT and release
+    gate: RELEASE_GATE

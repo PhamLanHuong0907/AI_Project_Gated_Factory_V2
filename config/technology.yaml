@@ -1,0 +1,14 @@
+backend:
+  language: Java
+  framework: Spring Boot
+  build: Maven
+frontend:
+  framework: React
+  language: TypeScript
+database:
+  engine: PostgreSQL
+  migration: Flyway
+testing:
+  browser_e2e: Playwright
+runtime:
+  containers: Docker Compose

@@ -1,0 +1,16 @@
+{
+  "pipeline_version": 2,
+  "current_stage": "NOT_STARTED",
+  "stages": {
+    "AUTO_01A": "PENDING",
+    "AUTO_01B": "PENDING",
+    "AUTO_01C": "PENDING",
+    "AUTO_01D": "PENDING",
+    "HUMAN_STITCH": "PENDING",
+    "AUTO_02A": "PENDING",
+    "AUTO_02B": "PENDING",
+    "AUTO_02C": "PENDING",
+    "AUTO_02D": "PENDING"
+  },
+  "last_updated": ""
+}

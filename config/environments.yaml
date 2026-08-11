@@ -1,0 +1,13 @@
+environments:
+  local_hybrid:
+    database_host: localhost
+    backend_host: localhost
+    frontend_host: localhost
+  docker:
+    database_host: postgres
+    backend_host: backend
+    frontend_host: frontend
+  test:
+    isolated_compose_project_suffix: test
+  uat:
+    isolated_compose_project_suffix: uat

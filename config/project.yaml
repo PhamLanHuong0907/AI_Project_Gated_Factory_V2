@@ -1,0 +1,7 @@
+project:
+  code: CHANGE_ME
+  name: CHANGE_ME
+  description: CHANGE_ME
+  language: vi
+  timezone: Asia/Ho_Chi_Minh
+  requirement_source: requirements/source/Requirement.docx

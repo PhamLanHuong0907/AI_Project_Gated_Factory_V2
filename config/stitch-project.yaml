@@ -1,0 +1,127 @@
+stitch:
+  approved_project_id: "16050414329059102261"
+  approved_project_name: "Precision Attendance System"
+  project_url: "https://stitch.withgoogle.com/projects/16050414329059102261"
+  approval_status: APPROVED
+
+  # Ánh xạ Screen Spec ID ↔ Stitch Screen Folder
+  approved_screen_map:
+    # ─── SCR-01: Đăng nhập ───
+    - screen_spec_id: SCR-01
+      stitch_screen_name: "nhap-he-thong"
+      stitch_folder: "ng_nh_p_h_th_ng"
+      vietnamese_name: "Nhập hệ thống"
+      description: "Login form — CheckPoint Pro"
+      approval_status: APPROVED
+
+    # ─── SCR-02: Dashboard (2 variants) ───
+    - screen_spec_id: SCR-02
+      stitch_screen_name: "dashboard-quan-tri-1"
+      stitch_folder: "dashboard_qu_n_tr_1"
+      vietnamese_name: "Dashboard quản trị 1"
+      description: "Dashboard Admin — sidebar: Nhân viên, Ca làm việc, Cấu hình lương, Báo cáo lương, Cài đặt"
+      approval_status: APPROVED
+    - screen_spec_id: SCR-02
+      stitch_screen_name: "dashboard-quan-tri-2"
+      stitch_folder: "dashboard_qu_n_tr_2"
+      vietnamese_name: "Dashboard quản trị 2"
+      description: "Dashboard Admin — sidebar: Duyệt đơn từ thay Ca làm việc (variant có đơn từ)"
+      approval_status: APPROVED
+
+    # ─── SCR-03: Tạo mã QR ───
+    - screen_spec_id: SCR-03
+      stitch_screen_name: "tao-ma-qr-cham-cong"
+      stitch_folder: "t_o_m_qr_ch_m_c_ng"
+      vietnamese_name: "Tạo mã QR chấm công"
+      description: "QR Generate — mã đếm ngược, cấu hình GPS/QR, sao chép link, in mã"
+      approval_status: APPROVED
+
+    # ─── SCR-04: Quét mã QR (2 variants) ───
+    - screen_spec_id: SCR-04
+      stitch_screen_name: "quet-ma-qr-cham-cong-1"
+      stitch_folder: "qu_t_m_qr_ch_m_c_ng_1"
+      vietnamese_name: "Quét mã QR chấm công 1"
+      description: "QR Scan — camera viewfinder, GPS verified 12m, nút Quét lại"
+      approval_status: APPROVED
+    - screen_spec_id: SCR-04
+      stitch_screen_name: "quet-ma-qr-cham-cong-2"
+      stitch_folder: "qu_t_m_qr_ch_m_c_ng_2"
+      vietnamese_name: "Quét mã QR chấm công 2"
+      description: "QR Scan — hiển thị ca làm việc, GPS 12m, overlay tối"
+      approval_status: APPROVED
+
+    # ─── SCR-05: Lịch sử chấm công (2 views) ───
+    - screen_spec_id: SCR-05
+      stitch_screen_name: "lich-su-cham-cong-tong-hop"
+      stitch_folder: "l_ch_s_ch_m_c_ng_t_ng_h_p"
+      vietnamese_name: "Lịch sử chấm công (Tổng hợp)"
+      description: "Admin — table Mã NV, Họ tên, Ngày, Giờ vào/ra, Trạng thái, phân trang, xuất CSV"
+      approval_status: APPROVED
+    - screen_spec_id: SCR-05
+      stitch_screen_name: "lich-su-cham-cong-ca-nhan"
+      stitch_folder: "l_ch_s_ch_m_c_ng_c_nh_n"
+      vietnamese_name: "Lịch sử chấm công (Cá nhân)"
+      description: "Employee mobile — stat cards (Đúng giờ, Đi trễ, Vắng), timeline theo tháng, bottom nav"
+      approval_status: APPROVED
+
+    # ─── SCR-06: Quản lý Ca làm việc ───
+    - screen_spec_id: SCR-06
+      stitch_screen_name: "quan-ly-ca-lam-viec"
+      stitch_folder: "qu_n_l_ca_l_m_vi_c"
+      vietnamese_name: "Quản lý Ca làm việc"
+      description: "CRUD shifts — tên ca, mã ca, thời gian, giờ nghỉ, ON/OFF, thêm/sửa/xóa"
+      approval_status: APPROVED
+
+    # ─── SCR-07: Cấu hình lương ───
+    - screen_spec_id: SCR-07
+      stitch_screen_name: "cau-hinh-luong-he-thong"
+      stitch_folder: "c_u_h_nh_l_ng_h_th_ng"
+      vietnamese_name: "Cấu hình lương hệ thống"
+      description: "5 tabs: Vị trí, Kinh nghiệm, Phạt, Thưởng, Công thức (Visual Builder + Preview)"
+      approval_status: APPROVED
+
+    # ─── SCR-08: Báo cáo lương ───
+    - screen_spec_id: SCR-08
+      stitch_screen_name: "bao-cao-luong-he-thong"
+      stitch_folder: "b_o_c_o_l_ng_h_ng_th_ng"
+      vietnamese_name: "Báo cáo lương hệ thống"
+      description: "Admin — tổng quỹ lương, số NV nhận lương, LTB, table chi tiết (Lương CB, Thưởng, Phạt, Thực nhận), in/xuất CSV"
+      approval_status: APPROVED
+    - screen_spec_id: SCR-08
+      stitch_screen_name: "phieu-luong-ca-nhan"
+      stitch_folder: "phi_u_l_ng_c_nh_n"
+      vietnamese_name: "Phiếu lương cá nhân"
+      description: "Employee mobile — stat cards (Ngày công), chi tiết thu nhập (Lương CB, Phụ cấp, Thưởng, Phạt, BHXH), thực nhận, xuất phiếu"
+      approval_status: APPROVED
+
+    # ─── SCR-09: Quản lý nhân sự ───
+    - screen_spec_id: SCR-09
+      stitch_screen_name: "quan-ly-nhan-vien"
+      stitch_folder: "qu_n_l_nh_n_s"
+      vietnamese_name: "Quản lý nhân sự"
+      description: "CRUD Users — avatar, tên, mã NV, vai trò, ca làm việc, trạng thái, phân trang"
+      approval_status: APPROVED
+
+    # ─── SCR-10: Cài đặt ───
+    - screen_spec_id: SCR-10
+      stitch_screen_name: "cai-dat-he-thong"
+      stitch_folder: "c_i_t_h_th_ng"
+      vietnamese_name: "Cài đặt hệ thống"
+      description: "GPS (vĩ độ/kinh độ/bán kính + bản đồ), QR (thời gian hết hạn), Chấm công (ngưỡng trễ, giờ ca mặc định)"
+      approval_status: APPROVED
+
+    # ─── SCR-11: Đơn từ cá nhân (Employee) ───
+    - screen_spec_id: SCR-11
+      stitch_screen_name: "quan-ly-don-tu-ca-nhan"
+      stitch_folder: "qu_n_l_n_t_c_nh_n"
+      vietnamese_name: "Quản lý đơn từ cá nhân"
+      description: "Employee mobile — card list (Nghỉ phép, Đi muộn, Làm thêm giờ), trạng thái (Chờ duyệt/Đã duyệt/Từ chối), FAB tạo đơn"
+      approval_status: APPROVED
+
+    # ─── SCR-12: Duyệt đơn từ (Admin/HR) ───
+    - screen_spec_id: SCR-12
+      stitch_screen_name: "duyet-don-tu-nhan-vien"
+      stitch_folder: "duy_t_n_t_nh_n_vi_n"
+      vietnamese_name: "Duyệt đơn từ nhân viên"
+      description: "Admin — table đơn, loại đơn (Nghỉ phép/Đi muộn/Làm thêm giờ), thời gian, lý do, Duyệt/Từ chối, badge trạng thái"
+      approval_status: APPROVED

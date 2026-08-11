@@ -1,0 +1,28 @@
+{
+  "name": "ai-project-factory-e2e",
+  "private": true,
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:smoke": "playwright test --grep @smoke",
+    "e2e:critical": "playwright test --grep @critical",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  },
+  "dependencies": {
+    "playwright": "^1.62.1"
+  },
+  "version": "1.0.0",
+  "description": "This template automates a Java/Spring Boot + React + PostgreSQL project with Claude Code/MiMo, MarkItDown MCP, Google Stitch MCP, Graphify, Playwright, Flyway, and Docker Compose.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

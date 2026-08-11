@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Đăng nhập - CheckPoint Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c3c6d7",
+                        "primary-container": "#2563eb",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#d0e1fb",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "warning-light": "#FEF3C7",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-tertiary-container": "#ffede6",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "tertiary": "#943700",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-highest": "#dae2fd",
+                        "tertiary-fixed": "#ffdbcd",
+                        "background": "#faf8ff",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-low": "#f2f3ff",
+                        "inverse-primary": "#b4c5ff",
+                        "warning": "#D97706",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-surface-variant": "#434655",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eaedff",
+                        "error-light": "#FEE2E2",
+                        "surface-dim": "#d2d9f4",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#283044",
+                        "success": "#16A34A",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary": "#505f76",
+                        "success-light": "#DCFCE7",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-error": "#ffffff",
+                        "surface": "#F8FAFC",
+                        "on-secondary-container": "#54647a",
+                        "on-primary-fixed": "#00174b",
+                        "primary-light": "#DBEAFE",
+                        "on-primary-container": "#eeefff",
+                        "on-surface": "#131b2e",
+                        "error": "#DC2626",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-tint": "#0053db",
+                        "outline": "#737686",
+                        "on-background": "#131b2e",
+                        "surface-variant": "#dae2fd",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "primary": "#004ac6",
+                        "border": "#E2E8F0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "2xl": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "label-xs": ["Inter"],
+                        "headline-3xl": ["Inter"],
+                        "headline-2xl": ["Inter"],
+                        "body-base": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "mono-code": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-xs": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-3xl": ["30px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "headline-2xl": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-base": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(248, 250, 252, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop relative overflow-hidden">
+<!-- Decorative background elements -->
+<div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-light rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-secondary-fixed rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+<main class="w-full max-w-md relative z-10">
+<!-- Login Card -->
+<div class="glass-panel border border-border rounded-xl shadow-lg p-lg md:p-xl flex flex-col gap-lg">
+<!-- Branding -->
+<div class="flex flex-col items-center gap-sm text-center">
+<div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center shadow-sm border border-border mb-sm">
+<span class="material-symbols-outlined text-[32px] text-primary" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+</div>
+<h1 class="font-headline-3xl text-headline-3xl text-primary">CheckPoint Pro</h1>
+<p class="font-body-base text-body-base text-on-surface-variant">Hệ thống quản lý nhân sự chuyên nghiệp</p>
+</div>
+<!-- Login Form -->
+<form class="flex flex-col gap-md" onsubmit="event.preventDefault();">
+<!-- Username Field -->
+<div class="flex flex-col gap-xs">
+<label class="font-body-sm text-body-sm text-on-surface font-semibold" for="username">Tên đăng nhập</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">person</span>
+</div>
+<input class="w-full h-11 pl-10 pr-sm rounded-lg border border-border bg-surface-container-lowest font-body-base text-body-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow" id="username" name="username" placeholder="Nhập tên đăng nhập" required="" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-xs">
+<label class="font-body-sm text-body-sm text-on-surface font-semibold" for="password">Mật khẩu</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">lock</span>
+</div>
+<input class="w-full h-11 pl-10 pr-10 rounded-lg border border-border bg-surface-container-lowest font-body-base text-body-base text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow" id="password" name="password" placeholder="Nhập mật khẩu" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-sm flex items-center text-outline hover:text-on-surface-variant transition-colors" onclick="togglePasswordVisibility()" type="button">
+<span class="material-symbols-outlined" id="visibility-icon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me & Forgot Password -->
+<div class="flex items-center justify-between mt-sm">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-surface-container-lowest" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Ghi nhớ đăng nhập</span>
+</label>
+<a class="font-body-sm text-body-sm text-primary font-semibold hover:underline" href="#">Quên mật khẩu?</a>
+</div>
+<!-- Submit Action -->
+<button class="w-full h-11 mt-sm bg-primary text-on-primary font-headline-lg text-headline-lg rounded-lg shadow-sm hover:bg-on-primary-fixed-variant active:scale-[0.98] transition-all flex justify-center items-center gap-sm" type="submit">
+                    Đăng nhập
+                    <span class="material-symbols-outlined text-[20px]">login</span>
+</button>
+</form>
+<!-- Support Footer -->
+<div class="text-center mt-sm border-t border-border pt-md">
+<p class="font-label-xs text-label-xs text-outline">
+                    Cần hỗ trợ? <a class="text-primary hover:underline" href="#">Liên hệ IT Support</a>
+</p>
+</div>
+</div>
+</main>
+<script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const visibilityIcon = document.getElementById('visibility-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                visibilityIcon.textContent = 'visibility_off';
+            } else {
+                passwordInput.type = 'password';
+                visibilityIcon.textContent = 'visibility';
+            }
+        }
+    </script>
+</body></html>

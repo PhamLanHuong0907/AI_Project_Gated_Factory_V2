@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard - CheckPoint Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c3c6d7",
+                        "primary-container": "#2563eb",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#d0e1fb",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "warning-light": "#FEF3C7",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-tertiary-container": "#ffede6",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "tertiary": "#943700",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-highest": "#dae2fd",
+                        "tertiary-fixed": "#ffdbcd",
+                        "background": "#faf8ff",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-low": "#f2f3ff",
+                        "inverse-primary": "#b4c5ff",
+                        "warning": "#D97706",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-surface-variant": "#434655",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eaedff",
+                        "error-light": "#FEE2E2",
+                        "surface-dim": "#d2d9f4",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#283044",
+                        "success": "#16A34A",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary": "#505f76",
+                        "success-light": "#DCFCE7",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-error": "#ffffff",
+                        "surface": "#F8FAFC",
+                        "on-secondary-container": "#54647a",
+                        "on-primary-fixed": "#00174b",
+                        "primary-light": "#DBEAFE",
+                        "on-primary-container": "#eeefff",
+                        "on-surface": "#131b2e",
+                        "error": "#DC2626",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-tint": "#0053db",
+                        "outline": "#737686",
+                        "on-background": "#131b2e",
+                        "surface-variant": "#dae2fd",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "primary": "#004ac6",
+                        "border": "#E2E8F0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "2xl": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "label-xs": ["Inter"],
+                        "headline-3xl": ["Inter"],
+                        "headline-2xl": ["Inter"],
+                        "body-base": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "mono-code": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-xs": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-3xl": ["30px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "headline-2xl": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-base": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background flex h-screen overflow-hidden font-body-base text-body-base">
+<!-- Desktop Sidebar -->
+<nav class="hidden md:flex flex-col h-screen w-[260px] fixed left-0 top-0 bg-surface-container-low dark:bg-inverse-surface border-r border-border dark:border-outline-variant p-md space-y-2 z-40">
+<div class="mb-lg">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary">Admin Portal</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">HR Management</p>
+</div>
+<div class="flex-1 flex flex-col space-y-1">
+<a class="flex items-center space-x-3 px-3 py-2 bg-primary-container text-on-primary-container rounded-lg font-semibold transition-transform scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">qr_code_2</span>
+<span>QR Code</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>Lịch sử</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Nhân viên</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span>Duyệt đơn từ</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">schedule</span>
+<span>Ca làm việc</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Cấu hình lương</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span>Báo cáo lương</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Cài đặt</span>
+</a>
+</div>
+<div class="mt-auto">
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high dark:text-surface-variant rounded-lg transition-transform scale-95 active:scale-90 hover:bg-secondary-container dark:hover:bg-secondary transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Đăng xuất</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[260px] h-screen overflow-y-auto flex flex-col">
+<!-- Top App Bar Desktop -->
+<header class="hidden md:flex flex justify-between items-center px-lg h-16 w-full sticky top-0 z-50 bg-surface dark:bg-inverse-surface border-b border-border dark:border-outline-variant shadow-sm transition-all active:opacity-80">
+<div class="font-headline-xl text-headline-xl font-bold text-primary dark:text-primary-fixed">
+                CheckPoint Pro
+            </div>
+<div class="flex items-center space-x-4">
+<button class="p-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-on-surface-variant transition-colors rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-on-surface-variant transition-colors rounded-full">
+<span class="material-symbols-outlined">help</span>
+</button>
+<img alt="Administrator profile photo" class="w-8 h-8 rounded-full border border-border object-cover" data-alt="A small circular profile picture of a professional human resources administrator in a corporate setting. The background is a clean, bright modern office space, reinforcing the polished corporate aesthetic of the dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByUWkIGauHCeX1Q_NUNhRHInWLPEL-qWJZnjBevR8eUoVaW7snfHs3N3BGOYSj6qBxEzhlzTui6JAhLZmaRZ7Eve-nxQ326Uiz2vlNcWjST128wQpcWDxN8T3wdoql8ixNM4fh8G0_TXSazMpQB7LOmMMLnaay0SCGvmCnOXsCviSQe_FBKFikWY5urNFvyw1Bevvmypl7tJURyUMnonVR5xJc-NuXHhWc6G-N8LMKuf0DN2r-3LNMkQ"/>
+</div>
+</header>
+<!-- Top App Bar Mobile -->
+<header class="md:hidden flex justify-between items-center px-4 h-16 w-full sticky top-0 z-50 bg-surface dark:bg-inverse-surface shadow-sm transition-all active:opacity-80">
+<div class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed">
+                Dashboard
+            </div>
+<img alt="Administrator profile photo" class="w-8 h-8 rounded-full border border-border object-cover" data-alt="A small circular profile picture of a professional human resources administrator in a corporate setting. The background is a clean, bright modern office space, reinforcing the polished corporate aesthetic of the dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIH6rS-SYme189Jfnnp9fgRjTgNQpKZbzQwHpihb2ewA6imh8LjdJ_90U9P7aO0pKOc-Km45bFMfkQ43_UiVIsAsFrrhwH9H-c75aE9cS0AW8ErFl629oOaD6WwxWgZ7v0ZprNZ6QrQ8z8DhPMQZq479TqyRnj9n_pCyj35v67NHuKhg2t0OwLZD0UrEgn0RRtZn0cmYrbda56V9BQRsoPklYsA9NknWqWbCrvccpIwqsCGTbtRLx3Ew"/>
+</header>
+<div class="p-4 md:p-lg space-y-lg max-w-7xl mx-auto w-full mb-20 md:mb-0">
+<!-- Quick Actions -->
+<div class="flex flex-wrap gap-4">
+<button class="flex items-center space-x-2 bg-primary text-on-primary px-4 py-2 rounded-lg shadow-sm hover:opacity-90 transition-opacity min-h-[44px]">
+<span class="material-symbols-outlined">qr_code</span>
+<span class="font-headline-lg text-headline-lg md:font-body-base md:text-body-base font-semibold">Tạo mã QR</span>
+</button>
+<button class="flex items-center space-x-2 bg-surface border border-border text-on-surface px-4 py-2 rounded-lg shadow-sm hover:bg-surface-container transition-colors min-h-[44px]">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-headline-lg text-headline-lg md:font-body-base md:text-body-base font-semibold">Xem báo cáo</span>
+</button>
+<button class="flex items-center space-x-2 bg-surface border border-border text-on-surface px-4 py-2 rounded-lg shadow-sm hover:bg-surface-container transition-colors min-h-[44px]">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-headline-lg text-headline-lg md:font-body-base md:text-body-base font-semibold">Cài đặt</span>
+</button>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Total Employees -->
+<div class="bg-surface rounded-xl p-md shadow-md border border-border">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-primary-light text-primary rounded-lg">
+<span class="material-symbols-outlined">group</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tổng nhân viên</p>
+<h3 class="font-headline-2xl text-headline-2xl text-on-surface mt-1">1,248</h3>
+</div>
+<!-- On Time -->
+<div class="bg-surface rounded-xl p-md shadow-md border border-border">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-success-light text-success rounded-lg">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Đúng giờ</p>
+<h3 class="font-headline-2xl text-headline-2xl text-on-surface mt-1">1,102</h3>
+</div>
+<!-- Late -->
+<div class="bg-surface rounded-xl p-md shadow-md border border-border">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-warning-light text-warning rounded-lg">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Đi trễ</p>
+<h3 class="font-headline-2xl text-headline-2xl text-on-surface mt-1">124</h3>
+</div>
+<!-- Absent -->
+<div class="bg-surface rounded-xl p-md shadow-md border border-border">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-error-light text-error rounded-lg">
+<span class="material-symbols-outlined">cancel</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Vắng mặt</p>
+<h3 class="font-headline-2xl text-headline-2xl text-on-surface mt-1">22</h3>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Chart Area -->
+<div class="lg:col-span-2 bg-surface rounded-xl shadow-md border border-border p-md">
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-4">Chấm công trong tuần</h3>
+<div class="h-64 w-full flex items-end space-x-2 justify-between">
+<!-- Mock Chart Columns -->
+<div class="flex flex-col items-center w-full group">
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 60%;"></div>
+<span class="font-label-xs text-label-xs text-on-surface-variant mt-2">T2</span>
+</div>
+<div class="flex flex-col items-center w-full group">
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 80%;"></div>
+<span class="font-label-xs text-label-xs text-on-surface-variant mt-2">T3</span>
+</div>
+<div class="flex flex-col items-center w-full group">
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 75%;"></div>
+<span class="font-label-xs text-label-xs text-on-surface-variant mt-2">T4</span>
+</div>
+<div class="flex flex-col items-center w-full group">
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 90%;"></div>
+<span class="font-label-xs text-label-xs text-on-surface-variant mt-2">T5</span>
+</div>
+<div class="flex flex-col items-center w-full group">
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 85%;"></div>
+<span class="font-label-xs text-label-xs text-on-surface-variant mt-2">T6</span>
+</div>
+<div class="flex flex-col items-center w-full group">
+<div class="w-full bg-primary-container rounded-t-sm opacity-50" style="height: 30%;"></div>
+<span class="font-label-xs text-label-xs text-on-surface-variant mt-2">T7</span>
+</div>
+<div class="flex flex-col items-center w-full group">
+<div class="w-full bg-primary-container rounded-t-sm opacity-50" style="height: 10%;"></div>
+<span class="font-label-xs text-label-xs text-on-surface-variant mt-2">CN</span>
+</div>
+</div>
+</div>
+<!-- Recent Activity List -->
+<div class="bg-surface rounded-xl shadow-md border border-border p-md">
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-4">Hoạt động gần đây</h3>
+<ul class="space-y-4">
+<li class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<img alt="Employee" class="w-10 h-10 rounded-full object-cover border border-border" data-alt="A small circular profile picture of an employee in a corporate setting. Clean, bright modern light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXgsMhr7ABH_EJvpBSmZBORfKeGIlbp-B95LpH_lWNVKPD4zfFrCLsn-CA-j6CJj2uGEIckRUjAnQKu8iA44ogklgBaqWF2xoCmnWUHUWcPnkEFRq2CrWNVE5Ek2UqnFOxFitID4yynHJJHu1zGir6p_csMl5NEKjE8-h3RGEOyMVXSgKMvS9ymo3KFo64PDlW6aGDI4SrWbzUtCT11UOR0kOEpcuRmps2Z5WKT_NTuhg_OOKoG_eJ3A"/>
+<div>
+<p class="font-body-base text-body-base font-semibold text-on-surface">Nguyễn Văn A</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">08:00 AM</p>
+</div>
+</div>
+<span class="bg-success-light text-success font-label-xs text-label-xs px-2 py-1 rounded-full border border-success/20">Đúng giờ</span>
+</li>
+<li class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<img alt="Employee" class="w-10 h-10 rounded-full object-cover border border-border" data-alt="A small circular profile picture of a female employee in a corporate setting. Clean, bright modern light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTjDQ3QGa7BEQW4qqZJJN3aTul3E2LarYUa-71xfVaosg-bhwYuki3l5yhocZXr1o1lNGLLKcZPA2LmpEASWR0LpacrI43ZHCcLKuwgXOWpM-a5MO0jdm2Cx_9zUlYcG2CRQJxk1B6YuLh3TGm-4BIY_GiqopJ-oF39r_lcdbxkk3Pbja7TXY-XRz0Bo3NM8OxFyPh5Oydi4OiNCxFDPL0VEXdhshrOEAEjieeyfWt89NWSLGQ8w02Qg"/>
+<div>
+<p class="font-body-base text-body-base font-semibold text-on-surface">Trần Thị B</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">08:15 AM</p>
+</div>
+</div>
+<span class="bg-warning-light text-warning font-label-xs text-label-xs px-2 py-1 rounded-full border border-warning/20">Đi trễ</span>
+</li>
+<li class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<img alt="Employee" class="w-10 h-10 rounded-full object-cover border border-border" data-alt="A small circular profile picture of a male employee in a corporate setting. Clean, bright modern light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw8stE_b-xJECWx4FnM6UuJ13CW6xGlhvPy9NMnF9m3GRDpGj0mEPDQ0cCoB-3aIDFE90Ul002GIAMgv-RAMaKXxHCzJf5t08BzVRVirJidny2xVrdcowNXyEe3_PXkg3JggtmCzmuoradzutM-jdrA-ZLJQteoFqTzBtGqNl1Au9KWPjr1o9khePsgRo-j49Ds7KGt5JdWDKWe-TpACTiyTKfREqqnD-Q3wBirFm2BejpNMMzHf9aeQ"/>
+<div>
+<p class="font-body-base text-body-base font-semibold text-on-surface">Lê Văn C</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">08:30 AM</p>
+</div>
+</div>
+<span class="bg-warning-light text-warning font-label-xs text-label-xs px-2 py-1 rounded-full border border-warning/20">Đi trễ</span>
+</li>
+<li class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-border text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+</div>
+<div>
+<p class="font-body-base text-body-base font-semibold text-on-surface">Phạm Thị D</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">-</p>
+</div>
+</div>
+<span class="bg-error-light text-error font-label-xs text-label-xs px-2 py-1 rounded-full border border-error/20">Vắng mặt</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 bg-surface dark:bg-inverse-surface border-t border-border dark:border-outline-variant shadow-lg rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:scale-95 transition-transform tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-label-xs text-label-xs mt-1">Chấm công</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:scale-95 transition-transform tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-label-xs text-label-xs mt-1">Lịch sử</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:scale-95 transition-transform tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-xs text-label-xs mt-1">Đơn từ</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 active:scale-95 transition-transform tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-xs text-label-xs mt-1 font-semibold">Cá nhân</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,25 @@
+graphify:
+  role:
+    - code_navigation
+    - dependency_exploration
+    - change_impact_analysis
+    - candidate_orphan_detection
+  not_authoritative_for:
+    - requirement_coverage
+    - api_contract_approval
+    - visual_parity
+    - runtime_pass
+  input_scopes:
+    phase_01:
+      - requirements
+      - docs/architecture
+      - docs/api
+      - database
+    phase_02:
+      - backend
+      - frontend
+      - e2e
+      - docs
+      - database
+  output_dir: graphify-out
+  verification_rule: Every Graphify finding that affects a gate must be verified against source code, configuration, or runtime evidence.

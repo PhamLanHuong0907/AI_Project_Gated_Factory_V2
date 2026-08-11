@@ -1,0 +1,11 @@
+mcp:
+  markitdown:
+    mode: read_only
+    purpose: convert requirement source documents into Markdown
+  stitch:
+    mode: read_only_during_implementation
+    require_exact_project_id: true
+    require_screen_id_mapping: true
+    forbid_project_selection_by_name_only: true
+security:
+  never_store_api_keys_in_repository: true

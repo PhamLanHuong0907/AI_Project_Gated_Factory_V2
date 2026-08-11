@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quản lý ca làm việc - CheckPoint Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c3c6d7",
+                        "primary-container": "#2563eb",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#d0e1fb",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "warning-light": "#FEF3C7",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-tertiary-container": "#ffede6",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "tertiary": "#943700",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-highest": "#dae2fd",
+                        "tertiary-fixed": "#ffdbcd",
+                        "background": "#faf8ff",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-low": "#f2f3ff",
+                        "inverse-primary": "#b4c5ff",
+                        "warning": "#D97706",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-surface-variant": "#434655",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eaedff",
+                        "error-light": "#FEE2E2",
+                        "surface-dim": "#d2d9f4",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#283044",
+                        "success": "#16A34A",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary": "#505f76",
+                        "success-light": "#DCFCE7",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-error": "#ffffff",
+                        "surface": "#F8FAFC",
+                        "on-secondary-container": "#54647a",
+                        "on-primary-fixed": "#00174b",
+                        "primary-light": "#DBEAFE",
+                        "on-primary-container": "#eeefff",
+                        "on-surface": "#131b2e",
+                        "error": "#DC2626",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-tint": "#0053db",
+                        "outline": "#737686",
+                        "on-background": "#131b2e",
+                        "surface-variant": "#dae2fd",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "primary": "#004ac6",
+                        "border": "#E2E8F0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "2xl": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "label-xs": ["Inter"],
+                        "headline-3xl": ["Inter"],
+                        "headline-2xl": ["Inter"],
+                        "body-base": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "mono-code": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-xs": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-3xl": ["30px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "headline-2xl": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-base": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-base text-body-base antialiased flex">
+<!-- SideNavBar (Web Only) -->
+<nav class="hidden md:flex flex-col h-screen w-[260px] fixed left-0 top-0 bg-surface-container-low border-r border-border p-md space-y-2 z-40">
+<!-- Header -->
+<div class="mb-lg px-2">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary">Admin Portal</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">HR Management</p>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 space-y-1">
+<a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mr-3">qr_code_2</span>
+                QR Code
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mr-3">history</span>
+                Lịch sử
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mr-3">group</span>
+                Nhân viên
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg bg-primary-container text-on-primary-container font-semibold transition-all" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">schedule</span>
+                Ca làm việc
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mr-3">payments</span>
+                Cấu hình lương
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mr-3">assessment</span>
+                Báo cáo lương
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+                Cài đặt
+            </a>
+</div>
+<!-- Footer -->
+<div class="mt-auto">
+<a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mr-3">logout</span>
+                Đăng xuất
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-[260px] min-h-screen flex flex-col w-full pb-20 md:pb-0">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center px-lg h-16 w-full sticky top-0 z-30 bg-surface border-b border-border shadow-sm">
+<div class="flex items-center">
+<h2 class="font-headline-xl text-headline-xl font-bold text-primary md:hidden">CheckPoint Pro</h2>
+<div class="hidden md:flex items-center bg-surface-container rounded-full px-4 py-2 border border-border">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none outline-none text-body-sm focus:ring-0 w-64 text-on-surface" placeholder="Tìm kiếm..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors hidden md:block">
+<span class="material-symbols-outlined">help</span>
+</button>
+<img alt="Administrator profile photo" class="w-8 h-8 rounded-full border border-border" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0GdgJvoEVclofb4UgdsPg2mbejTLyU_oSyrAMLjBY8p7NV8jII57dTDFpUdydOKhk5P4sswCbmCbKe3GsxeBuNSDsd-l0x4JbCvZ-tKtn3uvj6wYmtaEUe8kZ5xppYDeKQ-f2Z_cKj-v3aIpKrAec5JDVNUB8Udy_LqG8w_3vhVhf4EgODSVX2WAP0_NtCLoZjsFjQSOBvczuJRJ5DjT81OX7POBxx3IsiiKe2kCBmeHgWdX5WBXOrQ"/>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop overflow-auto">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-lg gap-4">
+<div>
+<h1 class="font-headline-2xl text-headline-2xl text-on-surface">Quản lý Ca làm việc</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Thiết lập và quản lý thời gian làm việc của nhân viên.</p>
+</div>
+<button class="bg-primary text-on-primary px-6 py-3 rounded-lg font-body-base text-body-base flex items-center hover:opacity-90 transition-opacity w-full md:w-auto justify-center shadow-sm" onclick="document.getElementById('addShiftModal').classList.remove('hidden')">
+<span class="material-symbols-outlined mr-2">add</span>
+                    Thêm ca mới
+                </button>
+</div>
+<!-- Shifts Data Table -->
+<div class="bg-surface rounded-xl border border-border shadow-md overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-border text-on-surface-variant font-body-sm text-body-sm">
+<th class="p-4 font-semibold">Tên ca</th>
+<th class="p-4 font-semibold">Mã ca</th>
+<th class="p-4 font-semibold">Thời gian</th>
+<th class="p-4 font-semibold">Giờ nghỉ ngơi</th>
+<th class="p-4 font-semibold text-center">Trạng thái</th>
+<th class="p-4 font-semibold text-right">Thao tác</th>
+</tr>
+</thead>
+<tbody class="text-body-base text-on-surface divide-y divide-border">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-4 font-semibold">Hành chính (Sáng - Chiều)</td>
+<td class="p-4 text-on-surface-variant font-mono-code text-mono-code">HC_01</td>
+<td class="p-4">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-outline text-sm mr-1">schedule</span>
+                                        08:00 - 17:30
+                                    </div>
+</td>
+<td class="p-4 text-on-surface-variant">12:00 - 13:30</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-success-light text-success font-body-sm text-body-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-success mr-2"></span> ON
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="p-2 text-primary hover:bg-primary-light rounded-lg transition-colors mr-1">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-error hover:bg-error-light rounded-lg transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-4 font-semibold">Ca Sáng</td>
+<td class="p-4 text-on-surface-variant font-mono-code text-mono-code">S_01</td>
+<td class="p-4">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-outline text-sm mr-1">schedule</span>
+                                        06:00 - 14:00
+                                    </div>
+</td>
+<td class="p-4 text-on-surface-variant">Không có</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-success-light text-success font-body-sm text-body-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-success mr-2"></span> ON
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="p-2 text-primary hover:bg-primary-light rounded-lg transition-colors mr-1">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-error hover:bg-error-light rounded-lg transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-lowest transition-colors opacity-60">
+<td class="p-4 font-semibold text-on-surface-variant">Ca Tối (Ngừng áp dụng)</td>
+<td class="p-4 text-on-surface-variant font-mono-code text-mono-code">T_01</td>
+<td class="p-4 text-on-surface-variant">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-outline text-sm mr-1">schedule</span>
+                                        14:00 - 22:00
+                                    </div>
+</td>
+<td class="p-4 text-on-surface-variant">17:30 - 18:00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-body-sm text-body-sm font-semibold border border-outline-variant">
+<span class="w-2 h-2 rounded-full bg-outline mr-2"></span> OFF
+                                    </span>
+</td>
+<td class="p-4 text-right">
+<button class="p-2 text-primary hover:bg-primary-light rounded-lg transition-colors mr-1">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-error hover:bg-error-light rounded-lg transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 bg-surface border-t border-border shadow-lg rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:scale-95 transition-transform w-1/4" href="#">
+<span class="material-symbols-outlined mb-1">qr_code_scanner</span>
+<span class="font-label-xs text-label-xs">Chấm công</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:scale-95 transition-transform w-1/4" href="#">
+<span class="material-symbols-outlined mb-1">calendar_month</span>
+<span class="font-label-xs text-label-xs">Lịch sử</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:scale-95 transition-transform w-1/4" href="#">
+<span class="material-symbols-outlined mb-1">description</span>
+<span class="font-label-xs text-label-xs">Đơn từ</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:scale-95 transition-transform w-1/4" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-xs text-label-xs">Cá nhân</span>
+</a>
+</nav>
+<!-- Modal: Thêm Ca Mới -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-on-background/50 backdrop-blur-sm p-4" id="addShiftModal">
+<div class="bg-surface w-full max-w-lg rounded-xl shadow-lg border border-border flex flex-col max-h-[921px]">
+<!-- Modal Header -->
+<div class="flex justify-between items-center p-md border-b border-border">
+<h3 class="font-headline-lg text-headline-lg font-bold text-on-surface">Thêm Ca Làm Việc Mới</h3>
+<button class="text-on-surface-variant hover:bg-surface-container rounded-full p-1 transition-colors" onclick="document.getElementById('addShiftModal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body (Scrollable) -->
+<div class="p-md overflow-y-auto flex-1 space-y-4">
+<div>
+<label class="block font-body-sm text-body-sm font-semibold text-on-surface mb-1">Tên ca làm việc <span class="text-error">*</span></label>
+<input class="w-full h-11 px-4 rounded-lg border border-border bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-on-surface" placeholder="VD: Ca Sáng, Hành chính..." type="text"/>
+</div>
+<div>
+<label class="block font-body-sm text-body-sm font-semibold text-on-surface mb-1">Mã ca</label>
+<input class="w-full h-11 px-4 rounded-lg border border-border bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-on-surface font-mono-code" placeholder="Tự động tạo hoặc nhập mã" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block font-body-sm text-body-sm font-semibold text-on-surface mb-1">Giờ bắt đầu <span class="text-error">*</span></label>
+<input class="w-full h-11 px-4 rounded-lg border border-border bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-on-surface" type="time"/>
+</div>
+<div>
+<label class="block font-body-sm text-body-sm font-semibold text-on-surface mb-1">Giờ kết thúc <span class="text-error">*</span></label>
+<input class="w-full h-11 px-4 rounded-lg border border-border bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-on-surface" type="time"/>
+</div>
+</div>
+<div class="border-t border-border pt-4 mt-4">
+<label class="flex items-center space-x-2 mb-2 cursor-pointer">
+<input class="rounded border-border text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Áp dụng giờ nghỉ giữa ca</span>
+</label>
+<div class="grid grid-cols-2 gap-4 opacity-50 pointer-events-none"> <!-- Toggle opacity/pointer-events via JS when checked -->
+<div>
+<label class="block font-label-xs text-label-xs text-on-surface-variant mb-1">Bắt đầu nghỉ</label>
+<input class="w-full h-11 px-4 rounded-lg border border-border bg-surface-container-lowest outline-none text-on-surface" type="time"/>
+</div>
+<div>
+<label class="block font-label-xs text-label-xs text-on-surface-variant mb-1">Kết thúc nghỉ</label>
+<input class="w-full h-11 px-4 rounded-lg border border-border bg-surface-container-lowest outline-none text-on-surface" type="time"/>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between border-t border-border pt-4 mt-4">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Trạng thái Kích hoạt</span>
+<!-- Simple Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-success"></div>
+</label>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-md border-t border-border bg-surface-container-low flex justify-end space-x-3 rounded-b-xl">
+<button class="px-6 py-2.5 rounded-lg border border-border bg-surface text-on-surface font-body-base hover:bg-surface-container transition-colors" onclick="document.getElementById('addShiftModal').classList.add('hidden')">
+                    Hủy bỏ
+                </button>
+<button class="px-6 py-2.5 rounded-lg bg-primary text-on-primary font-body-base hover:opacity-90 transition-opacity">
+                    Lưu ca làm việc
+                </button>
+</div>
+</div>
+</div>
+</body></html>

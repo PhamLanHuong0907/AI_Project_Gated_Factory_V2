@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Quét mã QR - CheckPoint Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c3c6d7",
+                        "primary-container": "#2563eb",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#d0e1fb",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "warning-light": "#FEF3C7",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-tertiary-container": "#ffede6",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "tertiary": "#943700",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-highest": "#dae2fd",
+                        "tertiary-fixed": "#ffdbcd",
+                        "background": "#faf8ff",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-low": "#f2f3ff",
+                        "inverse-primary": "#b4c5ff",
+                        "warning": "#D97706",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-surface-variant": "#434655",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eaedff",
+                        "error-light": "#FEE2E2",
+                        "surface-dim": "#d2d9f4",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#283044",
+                        "success": "#16A34A",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary": "#505f76",
+                        "success-light": "#DCFCE7",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-error": "#ffffff",
+                        "surface": "#F8FAFC",
+                        "on-secondary-container": "#54647a",
+                        "on-primary-fixed": "#00174b",
+                        "primary-light": "#DBEAFE",
+                        "on-primary-container": "#eeefff",
+                        "on-surface": "#131b2e",
+                        "error": "#DC2626",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-tint": "#0053db",
+                        "outline": "#737686",
+                        "on-background": "#131b2e",
+                        "surface-variant": "#dae2fd",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "primary": "#004ac6",
+                        "border": "#E2E8F0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "2xl": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "label-xs": ["Inter"],
+                        "headline-3xl": ["Inter"],
+                        "headline-2xl": ["Inter"],
+                        "body-base": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "mono-code": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-xs": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-3xl": ["30px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "headline-2xl": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-base": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        
+        /* Scan Line Animation */
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .scan-line {
+            animation: scan 2s linear infinite;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background h-screen w-screen overflow-hidden flex flex-col font-body-base antialiased">
+<!-- Camera Viewport (Simulated with image) -->
+<div class="absolute inset-0 z-0 bg-inverse-surface">
+<div class="w-full h-full bg-cover bg-center opacity-60" data-alt="A modern, brightly lit office interior viewed through a smartphone camera lens. The perspective is from an employee preparing to scan a QR code at the reception desk. Soft natural light filters through large windows, highlighting clean architectural lines and professional corporate decor. The scene is slightly blurred to simulate the depth of field of an active camera autofocusing on an unseen foreground object. Corporate high-tech aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCA5vEXr1DruOpYk9J35YVusRT4J8krXaMLQkijAJ7YCNVKr2CknyzzEAp6g6fxC4A_5n5OHUtsF7-gH_uqm6bszitaOrwq7z_aFWl2Lb-8jOOwdpdlGFc72mWgm6qoxU6JsCZnnQyjXYp-OxdcK06Jgx42Csrti6_YqoMus1aSDu4fIUDvMQ9OFtDrdgsqtfhXEQc8acDm1nrx4BnOfcQov3C3JTz_bhN-Vr9c2xynaZUZLut9B_aFOg')"></div>
+<!-- Overlay -->
+<div class="absolute inset-0 bg-black/40 pointer-events-none flex flex-col">
+<!-- Top Header Action -->
+<div class="w-full p-md pt-lg flex justify-between items-start z-20">
+<button class="w-10 h-10 rounded-full bg-surface/20 backdrop-blur-sm flex items-center justify-center text-on-primary hover:bg-surface/30 transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full bg-surface/20 backdrop-blur-sm flex items-center justify-center text-on-primary hover:bg-surface/30 transition-colors">
+<span class="material-symbols-outlined" data-icon="flashlight_on">flashlight_on</span>
+</button>
+</div>
+</div>
+<!-- Scan Area -->
+<div class="flex-1 flex flex-col items-center justify-center px-margin-mobile relative z-10">
+<div class="text-center mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-primary shadow-sm">Hướng camera vào mã QR</h2>
+<p class="font-body-sm text-body-sm text-on-primary/80 mt-xs">Mã sẽ được quét tự động</p>
+</div>
+<!-- Viewfinder Frame -->
+<div class="relative w-64 h-64 border-2 border-transparent">
+<!-- Corner Markers -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-lg"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-lg"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-lg"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-lg"></div>
+<!-- Scan Line -->
+<div class="scan-line absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_15px_rgba(0,74,198,0.8)]"></div>
+<!-- Clear Cutout -->
+<div class="absolute inset-0 bg-transparent rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] border border-surface/20"></div>
+</div>
+<!-- GPS Status Badge -->
+<div class="mt-xl flex flex-col items-center gap-sm">
+<div class="bg-surface/90 backdrop-blur-md px-md py-sm rounded-full shadow-md border border-border flex items-center gap-sm">
+<span class="material-symbols-outlined text-success" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Đã xác thực vị trí</span>
+<span class="font-label-xs text-label-xs text-on-surface-variant">Khoảng cách: 12m (Hợp lệ)</span>
+</div>
+</div>
+<!-- Rescan Button -->
+<button class="mt-4 px-lg py-sm bg-surface/20 backdrop-blur-sm border border-surface/30 rounded-full font-body-sm text-body-sm text-on-primary flex items-center gap-2 hover:bg-surface/30 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span>
+                        Quét lại
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Shell (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 bg-surface dark:bg-inverse-surface border-t border-border dark:border-outline-variant shadow-lg rounded-t-xl md:hidden">
+<!-- Tab 1: Chấm công (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 tap-highlight-transparent active:scale-95 transition-transform w-1/4" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="font-label-xs text-label-xs font-semibold mt-1">Chấm công</span>
+</a>
+<!-- Tab 2: Lịch sử (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:bg-surface-container-high tap-highlight-transparent active:scale-95 transition-transform w-1/4 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-label-xs text-label-xs mt-1">Lịch sử</span>
+</a>
+<!-- Tab 3: Đơn từ (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:bg-surface-container-high tap-highlight-transparent active:scale-95 transition-transform w-1/4 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-xs text-label-xs mt-1">Đơn từ</span>
+</a>
+<!-- Tab 4: Cá nhân (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:bg-surface-container-high tap-highlight-transparent active:scale-95 transition-transform w-1/4 rounded-lg py-1" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-xs text-label-xs mt-1">Cá nhân</span>
+</a>
+</nav>
+</body></html>

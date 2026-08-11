@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   PAS Design Tokens — Global CSS Custom Properties
+   Extracted from Stitch export DESIGN.md
+   ============================================================ */
+
+:root {
+  /* Brand */
+  --color-primary: #2563EB;
+  --color-primary-dark: #1D4ED8;
+  --color-primary-light: #3B82F6;
+  --color-primary-container: #DBEAFE;
+
+  /* Secondary */
+  --color-secondary: #475569;
+  --color-secondary-container: #E2E8F0;
+
+  /* Semantic */
+  --color-success: #16A34A;
+  --color-success-light: #DCFCE7;
+  --color-warning: #D97706;
+  --color-warning-light: #FEF3C7;
+  --color-error: #DC2626;
+  --color-error-light: #FEE2E2;
+
+  /* Neutral */
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+  --color-background: #FFFFFF;
+  --color-surface: #F8FAFC;
+  --color-border: #E2E8F0;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --topbar-height: 64px;
+  --bottomnav-height: 64px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0F172A;
+    --color-surface: #1E293B;
+    --color-text-primary: #F1F5F9;
+    --color-text-secondary: #CBD5E1;
+    --color-text-muted: #64748B;
+    --color-border: #334155;
+  }
+}
+
+/* ============================================================
+   Base Styles
+   ============================================================ */
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Utility Classes
+   ============================================================ */
+
+@layer components {
+  /* Badge pill for attendance status */
+  .badge-status {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-label-xs font-medium;
+  }
+  .badge-on-time {
+    @apply bg-success-light text-success;
+  }
+  .badge-late {
+    @apply bg-warning-light text-warning;
+  }
+  .badge-absent {
+    @apply bg-error-light text-error;
+  }
+  .badge-leave {
+    @apply bg-primary-container text-primary;
+  }
+
+  /* Card */
+  .card {
+    @apply rounded bg-neutral-background border border-neutral-border shadow-md;
+  }
+
+  /* Stat card */
+  .stat-card {
+    @apply card flex flex-col items-center p-lg text-center;
+  }
+
+  /* Data table */
+  .data-table {
+    @apply w-full border-collapse;
+  }
+  .data-table th {
+    @apply bg-neutral-surface px-md py-sm text-body-sm font-semibold text-neutral-text-secondary text-left border-b border-neutral-border;
+  }
+  .data-table td {
+    @apply px-md py-sm text-body-sm border-b border-neutral-border;
+  }
+  .data-table tbody tr:hover {
+    @apply bg-neutral-surface;
+  }
+}
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}

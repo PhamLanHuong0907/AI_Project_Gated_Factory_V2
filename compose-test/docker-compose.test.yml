@@ -1,0 +1,64 @@
+# Docker Compose for Test/UAT Environment
+# Separate from production to avoid conflicts
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  pas-postgres-test:
+    image: postgres:16-alpine
+    container_name: pas_postgres_test
+    environment:
+      POSTGRES_DB: pas_test
+      POSTGRES_USER: pas_test
+      POSTGRES_PASSWORD: pas_test_secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pas_test -d pas_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend
+  pas-backend-test:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: pas_backend_test
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pas-postgres-test:5432/pas_test
+      SPRING_DATASOURCE_USERNAME: pas_test
+      SPRING_DATASOURCE_PASSWORD: pas_test_secret
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
+      JWT_SECRET: test-secret-key-for-uat-only-not-for-production
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      pas-postgres-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # React Frontend
+  pas-frontend-test:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8081
+    container_name: pas_frontend_test
+    ports:
+      - "3001:80"
+    depends_on:
+      pas-backend-test:
+        condition: service_healthy
+
+volumes:
+  postgres_test_data:

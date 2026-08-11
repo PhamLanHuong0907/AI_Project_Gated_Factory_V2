@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>CheckPoint Pro - Quét mã QR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#360f00",
+                      "tertiary-fixed": "#ffdbcd",
+                      "inverse-surface": "#283044",
+                      "tertiary-container": "#bc4800",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "on-primary-container": "#eeefff",
+                      "inverse-on-surface": "#eef0ff",
+                      "primary-light": "#DBEAFE",
+                      "on-tertiary-container": "#ffede6",
+                      "background": "#faf8ff",
+                      "on-secondary-container": "#54647a",
+                      "success": "#16A34A",
+                      "surface-variant": "#dae2fd",
+                      "surface-bright": "#faf8ff",
+                      "on-primary-fixed": "#00174b",
+                      "surface-tint": "#0053db",
+                      "on-surface-variant": "#434655",
+                      "surface-dim": "#d2d9f4",
+                      "error": "#DC2626",
+                      "surface-container": "#eaedff",
+                      "on-secondary-fixed": "#0b1c30",
+                      "outline": "#737686",
+                      "warning-light": "#FEF3C7",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-error-container": "#93000a",
+                      "border": "#E2E8F0",
+                      "secondary-container": "#d0e1fb",
+                      "tertiary": "#943700",
+                      "on-tertiary": "#ffffff",
+                      "secondary": "#505f76",
+                      "outline-variant": "#c3c6d7",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#2563eb",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "secondary-fixed": "#d3e4fe",
+                      "primary-fixed": "#dbe1ff",
+                      "surface-container-high": "#e2e7ff",
+                      "surface-container-highest": "#dae2fd",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "warning": "#D97706",
+                      "surface": "#F8FAFC",
+                      "surface-container-low": "#f2f3ff",
+                      "error-light": "#FEE2E2",
+                      "on-surface": "#131b2e",
+                      "primary": "#004ac6",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "success-light": "#DCFCE7",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-background": "#131b2e",
+                      "inverse-primary": "#b4c5ff",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "xl": "32px",
+                      "2xl": "48px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "mono-code": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-xl": [
+                              "Inter"
+                      ],
+                      "headline-2xl": [
+                              "Inter"
+                      ],
+                      "headline-3xl": [
+                              "Inter"
+                      ],
+                      "label-xs": [
+                              "Inter"
+                      ],
+                      "body-base": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono-code": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-xl": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-2xl": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-3xl": [
+                              "30px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-xs": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-base": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .camera-overlay {
+            background: rgba(19, 27, 46, 0.7);
+        }
+        .scan-area {
+            box-shadow: 0 0 0 4000px rgba(19, 27, 46, 0.7);
+        }
+        .corner {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border-color: #004ac6;
+            border-style: solid;
+        }
+        .corner-tl { top: 0; left: 0; border-width: 4px 0 0 4px; border-top-left-radius: 12px; }
+        .corner-tr { top: 0; right: 0; border-width: 4px 4px 0 0; border-top-right-radius: 12px; }
+        .corner-bl { bottom: 0; left: 0; border-width: 0 0 4px 4px; border-bottom-left-radius: 12px; }
+        .corner-br { bottom: 0; right: 0; border-width: 0 4px 4px 0; border-bottom-right-radius: 12px; }
+        
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: #004ac6;
+            position: absolute;
+            top: 0;
+            box-shadow: 0 0 8px #004ac6;
+            animation: scan 2s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-base antialiased h-screen w-screen overflow-hidden relative">
+<!-- Camera Viewfinder Background -->
+<div class="absolute inset-0 z-0 bg-inverse-surface">
+<div class="bg-cover bg-center w-full h-full opacity-50 blur-sm" data-alt="A blurred background resembling a corporate office environment viewed through a mobile phone camera lens. The scene is slightly out of focus, featuring modern office lighting, glass partitions, and indoor plants. The lighting is bright and cool, reflecting a professional daytime setting. High-tech, clean aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDpriOccebVJ7snSuy22sjzQBQVs1HbYbnx37sFd5Pz_269_EXq2W7AcGiFldhamQUlAZan3mVtXHY7e5YF-ndGhknzZy1TXe5KRg8ws_s0e6xTa87VuchXnN2LAEcuhqGXm4W1TKcmtMLijhbMT5EDpB55a1TnYNOo5tjC04Vlrjp6RF6g_EfCBD5mfVnLZ9Mia-sN1GGdvCvXQBmEsYT0CDlreJEYTyHboDj2lmW8dJn5O-roYh78Fg')"></div>
+</div>
+<!-- Main Content Container -->
+<main class="relative z-10 h-full w-full flex flex-col pt-safe pb-24">
+<!-- Top Info Header -->
+<header class="w-full p-md flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<h1 class="font-headline-xl text-headline-xl text-on-primary">Chấm công ca làm</h1>
+<p class="font-body-sm text-body-sm text-inverse-on-surface opacity-80">Ca sáng (08:00 - 12:00)</p>
+</div>
+<button aria-label="Đổi camera" class="w-11 h-11 rounded-full bg-surface-container-highest/30 backdrop-blur-md flex items-center justify-center text-on-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="cameraswitch">cameraswitch</span>
+</button>
+</div>
+<!-- GPS Status Pill -->
+<div class="self-start inline-flex items-center gap-2 bg-success-light/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-success/20 shadow-sm mt-2">
+<span class="material-symbols-outlined text-success text-[18px]" data-icon="my_location" data-weight="fill">my_location</span>
+<span class="font-body-sm text-body-sm text-success font-semibold">Đã xác thực vị trí (12m)</span>
+</div>
+</header>
+<!-- QR Scan Area -->
+<div class="flex-1 flex flex-col items-center justify-center relative w-full px-8">
+<div class="relative w-64 h-64 mx-auto rounded-xl overflow-hidden scan-area">
+<!-- Transparent center hole is created by scan-area box-shadow -->
+<div class="absolute inset-0 z-20">
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+<div class="scan-line"></div>
+</div>
+</div>
+<p class="mt-8 font-body-base text-body-base text-on-primary text-center px-4 max-w-sm drop-shadow-md">
+                Di chuyển camera đến gần mã QR để quét tự động
+            </p>
+</div>
+<!-- Action Buttons -->
+<div class="w-full px-md pb-md flex justify-center gap-4">
+<button class="flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-surface/20 backdrop-blur-md border border-outline-variant/30 text-on-primary font-body-sm text-body-sm font-semibold hover:bg-surface/30 active:scale-95 transition-all w-full max-w-xs shadow-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="refresh">refresh</span>
+                Quét lại
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Shared Component) -->
+<nav class="bg-surface dark:bg-inverse-surface border-t border-border dark:border-outline-variant shadow-lg fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 rounded-t-xl md:hidden">
+<!-- Active Tab: Chấm công -->
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 tap-highlight-transparent active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner" data-weight="fill">qr_code_scanner</span>
+<span class="font-label-xs text-label-xs mt-1">Chấm công</span>
+</button>
+<!-- Inactive Tab: Lịch sử -->
+<button class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:bg-surface-container-high tap-highlight-transparent active:scale-95 transition-transform px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-label-xs text-label-xs mt-1">Lịch sử</span>
+</button>
+<!-- Inactive Tab: Đơn từ -->
+<button class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:bg-surface-container-high tap-highlight-transparent active:scale-95 transition-transform px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-xs text-label-xs mt-1">Đơn từ</span>
+</button>
+<!-- Inactive Tab: Cá nhân -->
+<button class="flex flex-col items-center justify-center text-on-secondary-fixed-variant active:bg-surface-container-high tap-highlight-transparent active:scale-95 transition-transform px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-xs text-label-xs mt-1">Cá nhân</span>
+</button>
+</nav>
+<!-- Script for interaction simulation -->
+<script>
+        document.querySelectorAll('.material-symbols-outlined[data-weight="fill"]').forEach(icon => {
+            icon.style.fontVariationSettings = "'FILL' 1";
+        });
+    </script>
+</body></html>

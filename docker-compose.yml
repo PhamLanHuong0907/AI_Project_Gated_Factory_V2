@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: pas_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pas_db
+      POSTGRES_USER: pas_user
+      POSTGRES_PASSWORD: pas_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pas_user -d pas_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+volumes:
+  postgres-data:
+    driver: local

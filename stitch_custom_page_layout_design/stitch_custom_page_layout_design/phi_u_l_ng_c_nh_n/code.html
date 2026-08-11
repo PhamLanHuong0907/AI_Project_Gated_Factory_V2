@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Báo cáo lương cá nhân</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#360f00",
+                      "tertiary-fixed": "#ffdbcd",
+                      "inverse-surface": "#283044",
+                      "tertiary-container": "#bc4800",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "on-primary-container": "#eeefff",
+                      "inverse-on-surface": "#eef0ff",
+                      "primary-light": "#DBEAFE",
+                      "on-tertiary-container": "#ffede6",
+                      "background": "#faf8ff",
+                      "on-secondary-container": "#54647a",
+                      "success": "#16A34A",
+                      "surface-variant": "#dae2fd",
+                      "surface-bright": "#faf8ff",
+                      "on-primary-fixed": "#00174b",
+                      "surface-tint": "#0053db",
+                      "on-surface-variant": "#434655",
+                      "surface-dim": "#d2d9f4",
+                      "error": "#DC2626",
+                      "surface-container": "#eaedff",
+                      "on-secondary-fixed": "#0b1c30",
+                      "outline": "#737686",
+                      "warning-light": "#FEF3C7",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-error-container": "#93000a",
+                      "border": "#E2E8F0",
+                      "secondary-container": "#d0e1fb",
+                      "tertiary": "#943700",
+                      "on-tertiary": "#ffffff",
+                      "secondary": "#505f76",
+                      "outline-variant": "#c3c6d7",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#2563eb",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "secondary-fixed": "#d3e4fe",
+                      "primary-fixed": "#dbe1ff",
+                      "surface-container-high": "#e2e7ff",
+                      "surface-container-highest": "#dae2fd",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "warning": "#D97706",
+                      "surface": "#F8FAFC",
+                      "surface-container-low": "#f2f3ff",
+                      "error-light": "#FEE2E2",
+                      "on-surface": "#131b2e",
+                      "primary": "#004ac6",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "success-light": "#DCFCE7",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-background": "#131b2e",
+                      "inverse-primary": "#b4c5ff",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "xl": "32px",
+                      "2xl": "48px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "mono-code": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-xl": [
+                              "Inter"
+                      ],
+                      "headline-2xl": [
+                              "Inter"
+                      ],
+                      "headline-3xl": [
+                              "Inter"
+                      ],
+                      "label-xs": [
+                              "Inter"
+                      ],
+                      "body-base": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono-code": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-xl": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-2xl": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-3xl": [
+                              "30px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-xs": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-base": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-base pb-24">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-surface border-b border-border shadow-sm px-margin-mobile h-16 flex items-center justify-between">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary">Báo cáo lương</h1>
+<div class="flex items-center space-x-2 bg-surface-container-low px-3 py-2 rounded-lg border border-border shadow-sm cursor-pointer hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">calendar_month</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">Tháng 10 / 2023</span>
+<span class="material-symbols-outlined text-on-surface-variant">arrow_drop_down</span>
+</div>
+</header>
+<main class="p-margin-mobile space-y-md">
+<!-- Employee Info Card -->
+<div class="bg-surface rounded-xl border border-border shadow-md p-md flex items-center space-x-md">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-primary-light" data-alt="A professional headshot of an Asian corporate employee wearing a light blue dress shirt, smiling subtly. Neutral bright office background, high-key lighting, modern corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBytLzlMiX2hwZrdIDzGt_RZtZJjP6A7KQxw9PSY9yCzmcAi-hizqr7h62pJm0rhi3ZzrqhHuA5tN14T5Y6nVVuTStvTLCFBSdey1yUiCf6NYnqMwtBF9e-cjA7FM03K4qb_nUagwlTM7Z5VCMUzgY6YjHPdZ7Qc02euyU3OvI7shqQizVO-1WdRO1MNxpm4SxYTFQCxlW0hbcRf8x7V7-OygJVkHChV7U5kCPbxR9YGpe1MFi74gGOhQ"/>
+<div>
+<h2 class="font-headline-xl text-headline-xl text-on-surface">Nguyễn Văn A</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mã NV: EMP-2023-001</p>
+<p class="font-body-sm text-body-sm text-primary font-semibold mt-xs">Chuyên viên Nhân sự</p>
+</div>
+</div>
+<!-- Summary Stats -->
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface rounded-xl border border-border shadow-sm p-sm flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-primary text-3xl mb-1">event_available</span>
+<span class="font-headline-xl text-headline-xl text-on-surface">22</span>
+<span class="font-label-xs text-label-xs text-on-surface-variant">Ngày công chuẩn</span>
+</div>
+<div class="bg-surface rounded-xl border border-border shadow-sm p-sm flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-success text-3xl mb-1">task_alt</span>
+<span class="font-headline-xl text-headline-xl text-success">21.5</span>
+<span class="font-label-xs text-label-xs text-on-surface-variant">Ngày công thực tế</span>
+</div>
+</div>
+<!-- Salary Breakdown -->
+<div class="bg-surface rounded-xl border border-border shadow-md overflow-hidden">
+<div class="bg-surface-container-low px-md py-sm border-b border-border">
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Chi tiết thu nhập</h3>
+</div>
+<div class="p-md space-y-sm">
+<!-- Basic Salary -->
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<span class="font-body-base text-body-base text-on-surface-variant">Lương cơ bản</span>
+<span class="font-body-base text-body-base text-on-surface font-semibold">15,000,000 đ</span>
+</div>
+<!-- Allowances -->
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<span class="font-body-base text-body-base text-on-surface-variant">Phụ cấp kinh nghiệm</span>
+<span class="font-body-base text-body-base text-on-surface font-semibold">2,000,000 đ</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<span class="font-body-base text-body-base text-on-surface-variant">Phụ cấp ăn trưa</span>
+<span class="font-body-base text-body-base text-on-surface font-semibold">730,000 đ</span>
+</div>
+<!-- Bonus -->
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<div class="flex items-center space-x-1">
+<span class="material-symbols-outlined text-success text-[18px]">trending_up</span>
+<span class="font-body-base text-body-base text-on-surface-variant">Thưởng</span>
+</div>
+<span class="font-body-base text-body-base text-success font-semibold">+ 1,500,000 đ</span>
+</div>
+<!-- Deductions -->
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<div class="flex items-center space-x-1">
+<span class="material-symbols-outlined text-error text-[18px]">trending_down</span>
+<span class="font-body-base text-body-base text-on-surface-variant">Phạt đi muộn</span>
+</div>
+<span class="font-body-base text-body-base text-error font-semibold">- 200,000 đ</span>
+</div>
+<!-- Taxes & Insurance -->
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<span class="font-body-base text-body-base text-on-surface-variant">BHXH / BHYT (10.5%)</span>
+<span class="font-body-base text-body-base text-error font-semibold">- 1,575,000 đ</span>
+</div>
+</div>
+<!-- Total -->
+<div class="bg-primary-container p-md flex justify-between items-center rounded-b-xl">
+<span class="font-headline-lg text-headline-lg text-on-primary-container">Thực nhận</span>
+<span class="font-headline-2xl text-headline-2xl text-on-primary-container font-bold">17,455,000 đ</span>
+</div>
+</div>
+<!-- Actions -->
+<button class="w-full bg-surface border border-primary text-primary font-headline-lg text-headline-lg rounded-lg py-3 flex items-center justify-center space-x-2 hover:bg-primary-light active:scale-95 transition-all shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">download</span>
+<span>Xuất phiếu lương</span>
+</button>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 bg-surface dark:bg-inverse-surface border-t border-border dark:border-outline-variant shadow-lg rounded-t-xl md:hidden">
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant tap-highlight-transparent active:scale-95 transition-transform active:bg-surface-container-high py-1 px-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-label-xs-mobile text-label-xs-mobile mt-1">Chấm công</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant tap-highlight-transparent active:scale-95 transition-transform active:bg-surface-container-high py-1 px-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-label-xs-mobile text-label-xs-mobile mt-1">Lịch sử</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant tap-highlight-transparent active:scale-95 transition-transform active:bg-surface-container-high py-1 px-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-xs-mobile text-label-xs-mobile mt-1">Đơn từ</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-1 tap-highlight-transparent active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-xs-mobile text-label-xs-mobile mt-1 font-semibold">Cá nhân</span>
+</a>
+</nav>
+</body></html>

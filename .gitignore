@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+node_modules/
+frontend/node_modules/
+backend/target/
+frontend/dist/
+test-results/
+playwright-report/
+blob-report/
+graphify-out/cache/
+*.log
+.idea/
+.vscode/settings.json
+.DS_Store

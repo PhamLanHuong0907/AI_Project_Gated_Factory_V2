@@ -1,0 +1,61 @@
+gates:
+  REQUIREMENT_GATE:
+    required:
+      - Requirement source converted to Markdown
+      - Module inventory completed
+      - Every use case has actor, trigger, rules, validation and acceptance criteria or an explicit open question
+      - Requirement coverage matrix has no unclassified critical section
+  CONTRACT_GATE:
+    required:
+      - Architecture decisions documented
+      - Database physical design reviewed
+      - Flyway migration plan generated
+      - OpenAPI contract generated and validated
+      - Every operationId links to at least one requirement ID
+      - Critical conflicts resolved or explicitly blocked
+  SCREEN_GATE:
+    required:
+      - Every UI-required use case maps to at least one Screen ID
+      - Every screen has route, actor, permission, API mapping, states and acceptance criteria
+      - Global navigation and App Shell are single-source documents
+      - Login/authentication screens included when required
+  STITCH_PROMPT_GATE:
+    required:
+      - Every approved screen has exactly one prompt entry
+      - Prompt index count equals screen count intended for Stitch
+      - Every prompt includes global design lock and Screen ID
+      - No module-specific sidebar redesign instruction exists
+  STITCH_APPROVAL_GATE:
+    required:
+      - Exact Stitch project ID recorded
+      - Every required Screen ID maps to exact Stitch Screen ID
+      - Login, representative list, and representative form visually approved
+      - Global App Shell approved
+  DESIGN_HANDOFF_GATE:
+    required:
+      - Stitch MCP capability report completed
+      - Project ID verified exactly
+      - Screen mapping complete
+      - Approved tokens, App Shell and assets extracted or limitations documented
+  VISUAL_PROOF_GATE:
+    required:
+      - One representative screen implemented in isolation
+      - Comparison evidence exists
+      - No major App Shell or shared-component drift
+      - Human approval recorded before bulk frontend generation
+  IMPLEMENTATION_GATE:
+    required:
+      - Frontend visual parity has no major unresolved difference
+      - Required OpenAPI operations implemented in backend
+      - Auth and RBAC operational
+      - Mock production runtime disabled
+      - FE-BE contract coverage complete for critical flows
+  RELEASE_GATE:
+    required:
+      - Unit and integration tests pass
+      - Playwright critical and smoke suites pass on real APIs
+      - Lint type-check and builds pass
+      - Docker Compose full stack healthy
+      - Smoke and UAT critical flows pass
+      - No unresolved critical/high release defect
+      - Release and rollback documentation complete

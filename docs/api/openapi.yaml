@@ -1,0 +1,2714 @@
+openapi: 3.0.3
+info:
+  title: Hệ thống Chấm công QR API
+  description: |
+    API for QR Code Attendance System with GPS verification.
+
+    ## Authentication
+    All endpoints require JWT Bearer token except `/auth/login`.
+
+    ## Rate Limiting
+    - Authentication: 5 requests/minute
+    - Attendance: 10 requests/minute
+    - General: 100 requests/minute
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@company.com
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Development
+  - url: https://attendance.company.com/api/v1
+    description: Production
+
+tags:
+  - name: Auth
+    description: Authentication operations
+  - name: Attendance
+    description: Attendance operations
+  - name: QR Code
+    description: QR code operations
+  - name: Users
+    description: User management
+  - name: Reports
+    description: Reports and salary
+  - name: Config
+    description: System configuration
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: User login
+      description: Authenticate user and return JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      summary: User logout
+      description: Invalidate current session
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logout successful
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      operationId: getCurrentUser
+      summary: Get current user info
+      description: Get authenticated user details
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /attendance/scan:
+    post:
+      tags: [Attendance]
+      operationId: scanAttendance
+      summary: Scan QR for attendance
+      description: |
+        Record attendance by scanning QR code with GPS verification.
+
+        **Business Rules:**
+        - QR code must be valid and not expired
+        - GPS distance must be ≤ threshold (default 50m)
+        - Only first IN per day is recorded
+        - Minimum 2 minutes between scans
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceScanRequest'
+      responses:
+        '200':
+          description: Attendance recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceScanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/BusinessError'
+
+  /attendance/me:
+    get:
+      tags: [Attendance]
+      operationId: getMyAttendance
+      summary: Get my attendance records
+      description: Get current user's attendance records
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendancePageResponse'
+
+  /attendance:
+    get:
+      tags: [Attendance]
+      operationId: getAllAttendance
+      summary: Get all attendance records
+      description: Get all attendance records (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - name: userId
+          in: query
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [IN, OUT]
+      responses:
+        '200':
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendancePageResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /attendance/report/daily:
+    get:
+      tags: [Attendance]
+      operationId: getDailyAttendanceReport
+      summary: Get daily attendance report
+      description: Get all employees' attendance for a specific date (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: employeeId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ON_TIME, LATE, ABSENT, EXCUSED_ABSENCE]
+      responses:
+        '200':
+          description: Daily attendance report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyReportResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /attendance/report/monthly:
+    get:
+      tags: [Attendance]
+      operationId: getMonthlyAttendanceReport
+      summary: Get monthly attendance summary
+      description: Get monthly attendance summary per employee (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: employeeId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Monthly attendance report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthlyReportResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /attendance/report/range:
+    get:
+      tags: [Attendance]
+      operationId: getRangeAttendanceReport
+      summary: Get attendance report for date range
+      description: Get attendance report grouped by status or employee for a date range (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: employeeId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ON_TIME, LATE, ABSENT, EXCUSED_ABSENCE]
+        - name: groupBy
+          in: query
+          schema:
+            type: string
+            enum: [status, employee]
+            default: status
+      responses:
+        '200':
+          description: Range attendance report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RangeReportResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /attendance/employee/{userId}:
+    get:
+      tags: [Attendance]
+      operationId: getEmployeeAttendance
+      summary: Get employee attendance detail
+      description: Get detailed attendance records for a specific employee (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Employee attendance records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeAttendanceResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /attendance/export:
+    get:
+      tags: [Attendance]
+      operationId: exportAttendance
+      summary: Export attendance to CSV
+      description: Export attendance records to CSV file (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: employeeId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: CSV file download
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /qr/generate:
+    post:
+      tags: [QR Code]
+      operationId: generateQR
+      summary: Generate QR code
+      description: Generate new QR code for attendance
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: QR code generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRGenerateResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /qr/validate:
+    post:
+      tags: [QR Code]
+      operationId: validateQR
+      summary: Validate QR code
+      description: Validate scanned QR code
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+      responses:
+        '200':
+          description: QR validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRValidateResponse'
+
+  /users:
+    get:
+      tags: [Users]
+      operationId: getUsers
+      summary: Get all users
+      description: Get list of all users (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [EMPLOYEE, ADMIN, HR_MANAGER]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE, LOCKED]
+      responses:
+        '200':
+          description: User list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPageResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Users]
+      operationId: createUser
+      summary: Create new user
+      description: Create new user account (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      operationId: getUserById
+      summary: Get user by ID
+      description: Get user details (Admin or self)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Users]
+      operationId: updateUser
+      summary: Update user
+      description: Update user information (Admin or self)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Users]
+      operationId: deleteUser
+      summary: Delete user
+      description: Delete user account (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /reports/monthly:
+    get:
+      tags: [Reports]
+      operationId: getMonthlyReport
+      summary: Get monthly attendance report
+      description: Generate monthly attendance report (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Monthly report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthlyReportResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /reports/salary:
+    get:
+      tags: [Reports]
+      operationId: getSalaryReport
+      summary: Get salary report
+      description: Generate salary report (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Salary report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryReportResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /salary/config:
+    get:
+      tags: [Config]
+      operationId: getSalaryConfig
+      summary: Get salary configuration
+      description: Get salary configuration for all users (Admin/HR only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Salary configurations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalaryConfigResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Config]
+      operationId: createSalaryConfig
+      summary: Create salary configuration
+      description: Create new salary config for user (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryConfigCreateRequest'
+      responses:
+        '201':
+          description: Salary config created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryConfigResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /salary/config/{userId}:
+    put:
+      tags: [Config]
+      operationId: updateSalaryConfig
+      summary: Update salary configuration
+      description: Update salary config for user (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryConfigRequest'
+      responses:
+        '200':
+          description: Salary config updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryConfigResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ========== Salary Positions ==========
+  /salary/positions:
+    get:
+      tags: [Salary Config]
+      operationId: getSalaryPositions
+      summary: Get all salary positions
+      description: Get list of salary positions (Admin/HR only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Position list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalaryPositionResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Salary Config]
+      operationId: createSalaryPosition
+      summary: Create salary position
+      description: Create new salary position (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryPositionRequest'
+      responses:
+        '201':
+          description: Position created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryPositionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /salary/positions/{id}:
+    put:
+      tags: [Salary Config]
+      operationId: updateSalaryPosition
+      summary: Update salary position
+      description: Update salary position (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryPositionRequest'
+      responses:
+        '200':
+          description: Position updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryPositionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Salary Config]
+      operationId: deleteSalaryPosition
+      summary: Delete salary position
+      description: Delete salary position (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Position deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== Salary Experience ==========
+  /salary/experience:
+    get:
+      tags: [Salary Config]
+      operationId: getSalaryExperience
+      summary: Get all experience tiers
+      description: Get list of experience tiers (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: positionId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Experience tier list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalaryExperienceResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Salary Config]
+      operationId: createSalaryExperience
+      summary: Create experience tier
+      description: Create new experience tier (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryExperienceRequest'
+      responses:
+        '201':
+          description: Experience tier created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryExperienceResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /salary/experience/{id}:
+    put:
+      tags: [Salary Config]
+      operationId: updateSalaryExperience
+      summary: Update experience tier
+      description: Update experience tier (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryExperienceRequest'
+      responses:
+        '200':
+          description: Experience tier updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryExperienceResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Salary Config]
+      operationId: deleteSalaryExperience
+      summary: Delete experience tier
+      description: Delete experience tier (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Experience tier deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== Salary Penalties ==========
+  /salary/penalties:
+    get:
+      tags: [Salary Config]
+      operationId: getSalaryPenalties
+      summary: Get all penalty rules
+      description: Get list of attendance penalty rules (Admin/HR only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Penalty rule list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalaryPenaltyResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Salary Config]
+      operationId: createSalaryPenalty
+      summary: Create penalty rule
+      description: Create new attendance penalty rule (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryPenaltyRequest'
+      responses:
+        '201':
+          description: Penalty rule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryPenaltyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /salary/penalties/{id}:
+    put:
+      tags: [Salary Config]
+      operationId: updateSalaryPenalty
+      summary: Update penalty rule
+      description: Update attendance penalty rule (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryPenaltyRequest'
+      responses:
+        '200':
+          description: Penalty rule updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryPenaltyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Salary Config]
+      operationId: deleteSalaryPenalty
+      summary: Delete penalty rule
+      description: Delete attendance penalty rule (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Penalty rule deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== Salary Bonus ==========
+  /salary/bonus:
+    get:
+      tags: [Salary Config]
+      operationId: getSalaryBonus
+      summary: Get all bonus configs
+      description: Get list of bonus configurations (Admin/HR only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Bonus config list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalaryBonusResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Salary Config]
+      operationId: createSalaryBonus
+      summary: Create bonus config
+      description: Create new bonus configuration (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryBonusRequest'
+      responses:
+        '201':
+          description: Bonus config created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryBonusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /salary/bonus/{id}:
+    put:
+      tags: [Salary Config]
+      operationId: updateSalaryBonus
+      summary: Update bonus config
+      description: Update bonus configuration (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryBonusRequest'
+      responses:
+        '200':
+          description: Bonus config updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryBonusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Salary Config]
+      operationId: deleteSalaryBonus
+      summary: Delete bonus config
+      description: Delete bonus configuration (Admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Bonus config deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== Employee Salary Assignment ==========
+  /salary/assign/position:
+    post:
+      tags: [Salary Config]
+      operationId: assignPosition
+      summary: Assign position to employee
+      description: Assign salary position to employee (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignPositionRequest'
+      responses:
+        '201':
+          description: Position assigned
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /salary/assign/experience:
+    post:
+      tags: [Salary Config]
+      operationId: assignExperience
+      summary: Assign experience tier to employee
+      description: Assign salary experience tier to employee (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignExperienceRequest'
+      responses:
+        '201':
+          description: Experience tier assigned
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /salary/assign/bonus:
+    post:
+      tags: [Salary Config]
+      operationId: assignBonus
+      summary: Assign bonus to employee
+      description: Assign salary bonus to employee (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignBonusRequest'
+      responses:
+        '201':
+          description: Bonus assigned
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    delete:
+      tags: [Salary Config]
+      operationId: unassignBonus
+      summary: Remove bonus from employee
+      description: Remove salary bonus from employee (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignBonusRequest'
+      responses:
+        '204':
+          description: Bonus removed
+
+  /salary/employee/{userId}:
+    get:
+      tags: [Salary Config]
+      operationId: getEmployeeSalaryDetail
+      summary: Get employee salary detail
+      description: Get full salary detail for employee (Admin/HR only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Employee salary detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeSalaryDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== Salary Formula ==========
+  /salary/formula:
+    get:
+      tags: [Salary Config]
+      operationId: getSalaryFormula
+      summary: Get current salary formula
+      description: Get the active salary formula (Admin/HR only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current formula
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryFormulaResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Salary Config]
+      operationId: saveSalaryFormula
+      summary: Save salary formula
+      description: Create or update salary formula (Admin only). Only one formula can be active.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryFormulaRequest'
+      responses:
+        '200':
+          description: Formula saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryFormulaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /salary/formula/validate:
+    post:
+      tags: [Salary Config]
+      operationId: validateSalaryFormula
+      summary: Validate salary formula syntax
+      description: Check formula syntax without saving (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [formulaText]
+              properties:
+                formulaText:
+                  type: string
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      type: string
+
+  /salary/formula/preview:
+    post:
+      tags: [Salary Config]
+      operationId: previewSalaryFormula
+      summary: Preview salary calculation
+      description: Calculate salary using formula for a given employee (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: integer
+      responses:
+        '200':
+          description: Preview result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                  baseSalary:
+                    type: number
+                  experiencePct:
+                    type: number
+                  bonusTotal:
+                    type: number
+                  penaltyTotal:
+                    type: number
+                  daysWorked:
+                    type: integer
+                  totalWorkDays:
+                    type: integer
+                  yearsOfWork:
+                    type: integer
+                  totalSalary:
+                    type: number
+                  formulaUsed:
+                    type: string
+
+  /shifts:
+    get:
+      tags: [Config]
+      operationId: getShifts
+      summary: Get all shifts
+      description: Get list of work shifts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Shift list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShiftResponse'
+
+    post:
+      tags: [Config]
+      operationId: createShift
+      summary: Create new shift
+      description: Create new work shift (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftRequest'
+      responses:
+        '201':
+          description: Shift created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftResponse'
+
+  /config/gps:
+    get:
+      tags: [Config]
+      operationId: getGPSConfig
+      summary: Get GPS configuration
+      description: Get GPS settings (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: GPS configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GPSConfigResponse'
+
+    put:
+      tags: [Config]
+      operationId: updateGPSConfig
+      summary: Update GPS configuration
+      description: Update GPS settings (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GPSConfigRequest'
+      responses:
+        '200':
+          description: GPS config updated
+
+  /config/qr:
+    get:
+      tags: [Config]
+      operationId: getQRConfig
+      summary: Get QR code configuration
+      description: Get QR expiration settings (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: QR configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRConfigResponse'
+
+    put:
+      tags: [Config]
+      operationId: updateQRConfig
+      summary: Update QR code configuration
+      description: Update QR expiration settings (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QRConfigRequest'
+      responses:
+        '200':
+          description: QR config updated
+
+  /config/attendance:
+    get:
+      tags: [Config]
+      operationId: getAttendanceConfig
+      summary: Get attendance configuration
+      description: Get attendance settings like late threshold (Admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Attendance configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceConfigResponse'
+
+    put:
+      tags: [Config]
+      operationId: updateAttendanceConfig
+      summary: Update attendance configuration
+      description: Update attendance settings like late threshold (Admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceConfigRequest'
+      responses:
+        '200':
+          description: Attendance config updated
+
+  # ========== Leave Request Endpoints ==========
+  /leave-requests:
+    post:
+      tags: [Leave Request]
+      operationId: createLeaveRequest
+      summary: Create a leave request
+      description: Employee creates a leave request with date, reason, and optional attachments
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveRequestCreateRequest'
+      responses:
+        '201':
+          description: Leave request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestResponse'
+
+    get:
+      tags: [Leave Request]
+      operationId: listLeaveRequests
+      summary: List leave requests
+      description: |
+        List leave requests with filters.
+        EMPLOYEE: only own requests.
+        ADMIN/HR_MANAGER: all requests.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, APPROVED, REJECTED]
+        - name: userId
+          in: query
+          schema:
+            type: integer
+          description: Filter by user (ADMIN/HR only)
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by user name or reason
+      responses:
+        '200':
+          description: Paginated leave requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestPageResponse'
+
+  /leave-requests/{id}:
+    get:
+      tags: [Leave Request]
+      operationId: getLeaveRequest
+      summary: Get leave request detail
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Leave request detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestResponse'
+
+    put:
+      tags: [Leave Request]
+      operationId: updateLeaveRequest
+      summary: Update leave request (only PENDING status)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveRequestUpdateRequest'
+      responses:
+        '200':
+          description: Leave request updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestResponse'
+
+    delete:
+      tags: [Leave Request]
+      operationId: deleteLeaveRequest
+      summary: Delete/cancel leave request (only PENDING status)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Leave request deleted
+
+  /leave-requests/{id}/approve:
+    post:
+      tags: [Leave Request]
+      operationId: approveLeaveRequest
+      summary: Approve a leave request
+      description: |
+        Admin/HR approves a leave request.
+        Automatically creates an attendance record with status XIN_NGHI for that date.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  description: Optional note from approver
+      responses:
+        '200':
+          description: Leave request approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestResponse'
+
+  /leave-requests/{id}/reject:
+    post:
+      tags: [Leave Request]
+      operationId: rejectLeaveRequest
+      summary: Reject a leave request
+      description: Admin/HR rejects a leave request with a reason
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveRequestRejectRequest'
+      responses:
+        '200':
+          description: Leave request rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestResponse'
+
+  /leave-requests/upload:
+    post:
+      tags: [Leave Request]
+      operationId: uploadLeaveAttachment
+      summary: Upload attachment for leave request
+      description: Upload image (JPG/PNG) or PDF file, max 5MB per file, max 3 files
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload (JPG, PNG, or PDF, max 5MB)
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+    SizeParam:
+      name: size
+      in: query
+      schema:
+        type: integer
+        default: 20
+        maximum: 100
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+        password:
+          type: string
+          minLength: 8
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+            expiresIn:
+              type: integer
+            user:
+              $ref: '#/components/schemas/UserInfo'
+
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+          enum: [EMPLOYEE, ADMIN, HR_MANAGER]
+
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        shiftId:
+          type: integer
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    UserCreateRequest:
+      type: object
+      required: [username, password, fullName, role]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [EMPLOYEE, ADMIN, HR_MANAGER]
+        shiftId:
+          type: integer
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        shiftId:
+          type: integer
+        status:
+          type: string
+
+    UserPageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+            page:
+              type: integer
+            size:
+              type: integer
+            totalElements:
+              type: integer
+            totalPages:
+              type: integer
+
+    AttendanceScanRequest:
+      type: object
+      required: [qrCode, gpsLat, gpsLng]
+      properties:
+        qrCode:
+          type: string
+        gpsLat:
+          type: number
+          format: double
+        gpsLng:
+          type: number
+          format: double
+
+    AttendanceScanResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            type:
+              type: string
+              enum: [IN, OUT]
+            timestamp:
+              type: string
+              format: date-time
+            distance:
+              type: number
+            status:
+              type: string
+            message:
+              type: string
+
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        distance:
+          type: number
+        status:
+          type: string
+        flag:
+          type: string
+
+    AttendancePageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/Attendance'
+            page:
+              type: integer
+            size:
+              type: integer
+            totalElements:
+              type: integer
+            totalPages:
+              type: integer
+            summary:
+              $ref: '#/components/schemas/AttendanceSummary'
+
+    AttendanceSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+        onTime:
+          type: integer
+        late:
+          type: integer
+        absent:
+          type: integer
+        excused:
+          type: integer
+
+    AttendanceRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        employeeId:
+          type: integer
+        employeeCode:
+          type: string
+        employeeName:
+          type: string
+        attendanceDate:
+          type: string
+          format: date
+        scanTime:
+          type: string
+          format: date-time
+        scanType:
+          type: string
+          enum: [CHECK_IN, CHECK_OUT]
+        checkInTime:
+          type: string
+          format: date-time
+        checkOutTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [ON_TIME, LATE, ABSENT, EXCUSED_ABSENCE]
+        lateMinutes:
+          type: integer
+        reason:
+          type: string
+        distance:
+          type: number
+          format: float
+
+    DailyReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            date:
+              type: string
+              format: date
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttendanceRecord'
+            summary:
+              $ref: '#/components/schemas/AttendanceSummary'
+
+    MonthlyReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            month:
+              type: integer
+            year:
+              type: integer
+            employees:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  code:
+                    type: string
+                  name:
+                    type: string
+                  onTimeDays:
+                    type: integer
+                  lateDays:
+                    type: integer
+                  absentDays:
+                    type: integer
+                  excusedDays:
+                    type: integer
+            summary:
+              $ref: '#/components/schemas/AttendanceSummary'
+
+    RangeReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date
+            to:
+              type: string
+              format: date
+            groups:
+              type: array
+              items:
+                type: object
+                properties:
+                  label:
+                    type: string
+                  count:
+                    type: integer
+                  employees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        code:
+                          type: string
+                        name:
+                          type: string
+                        count:
+                          type: integer
+            summary:
+              $ref: '#/components/schemas/AttendanceSummary'
+
+    EmployeeAttendanceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            employee:
+              type: object
+              properties:
+                id:
+                  type: integer
+                code:
+                  type: string
+                name:
+                  type: string
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttendanceRecord'
+            summary:
+              $ref: '#/components/schemas/AttendanceSummary'
+            page:
+              type: integer
+            size:
+              type: integer
+            totalElements:
+              type: integer
+
+    QRGenerateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+            expiresAt:
+              type: string
+              format: date-time
+
+    QRValidateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            valid:
+              type: boolean
+            userId:
+              type: integer
+            message:
+              type: string
+
+    ShiftResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        gracePeriod:
+          type: integer
+        workDays:
+          type: string
+        isActive:
+          type: boolean
+
+    ShiftRequest:
+      type: object
+      required: [name, startTime, endTime, workDays]
+      properties:
+        name:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        gracePeriod:
+          type: integer
+          default: 15
+        workDays:
+          type: string
+
+    SalaryConfigResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        category:
+          type: string
+        baseSalary:
+          type: number
+        latePenaltyRate:
+          type: number
+        leavePenaltyRate:
+          type: number
+
+    SalaryConfigRequest:
+      type: object
+      required: [category, baseSalary]
+      properties:
+        category:
+          type: string
+        baseSalary:
+          type: number
+        formula:
+          type: string
+        latePenaltyRate:
+          type: number
+        leavePenaltyRate:
+          type: number
+
+    MonthlyReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            month:
+              type: integer
+            year:
+              type: integer
+            employees:
+              type: array
+              items:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                  fullName:
+                    type: string
+                  totalDays:
+                    type: integer
+                  totalHours:
+                    type: number
+                  lateCount:
+                    type: integer
+                  earlyCount:
+                    type: integer
+
+    SalaryReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            month:
+              type: integer
+            year:
+              type: integer
+            employees:
+              type: array
+              items:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                  fullName:
+                    type: string
+                  baseSalary:
+                    type: number
+                  deductions:
+                    type: number
+                  totalSalary:
+                    type: number
+
+    GPSConfigResponse:
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+        threshold:
+          type: number
+        wifiFallback:
+          type: boolean
+
+    GPSConfigRequest:
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+        threshold:
+          type: number
+        wifiFallback:
+          type: boolean
+
+    QRConfigResponse:
+      type: object
+      properties:
+        qrExpirationSeconds:
+          type: integer
+          description: QR code expiration time in seconds
+          example: 30
+
+    QRConfigRequest:
+      type: object
+      required: [qrExpirationSeconds]
+      properties:
+        qrExpirationSeconds:
+          type: integer
+          minimum: 1
+          description: QR code expiration time in seconds (must be > 0)
+          example: 30
+
+    AttendanceConfigResponse:
+      type: object
+      properties:
+        lateThresholdMinutes:
+          type: integer
+          description: Maximum minutes late still considered on-time
+          example: 5
+
+    AttendanceConfigRequest:
+      type: object
+      required: [lateThresholdMinutes]
+      properties:
+        lateThresholdMinutes:
+          type: integer
+          minimum: 1
+          description: Maximum minutes late still considered on-time (must be > 0)
+          example: 5
+
+    # ========== Salary Config New ==========
+    SalaryConfigCreateRequest:
+      type: object
+      required: [userId, category, baseSalary]
+      properties:
+        userId:
+          type: integer
+        category:
+          type: string
+          enum: [FULL_TIME, PART_TIME, INTERN]
+        baseSalary:
+          type: number
+        formula:
+          type: string
+        latePenaltyRate:
+          type: number
+        leavePenaltyRate:
+          type: number
+
+    # ========== Salary Position ==========
+    SalaryPositionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        baseSalary:
+          type: number
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    SalaryPositionRequest:
+      type: object
+      required: [code, name, baseSalary]
+      properties:
+        code:
+          type: string
+          minLength: 2
+          maxLength: 50
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        baseSalary:
+          type: number
+          minimum: 0
+        isActive:
+          type: boolean
+          default: true
+
+    # ========== Salary Experience ==========
+    SalaryExperienceResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        positionId:
+          type: integer
+        positionName:
+          type: string
+        minYears:
+          type: integer
+        maxYears:
+          type: integer
+          nullable: true
+        percentIncrease:
+          type: number
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    SalaryExperienceRequest:
+      type: object
+      required: [code, name, positionId, minYears, percentIncrease]
+      properties:
+        code:
+          type: string
+          minLength: 2
+          maxLength: 50
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        positionId:
+          type: integer
+        minYears:
+          type: integer
+          minimum: 0
+        maxYears:
+          type: integer
+          nullable: true
+        percentIncrease:
+          type: number
+          minimum: 0
+          maximum: 200
+        isActive:
+          type: boolean
+          default: true
+
+    # ========== Salary Penalty ==========
+    SalaryPenaltyResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        penaltyType:
+          type: string
+          enum: [LATE, ABSENT]
+        minMinutes:
+          type: integer
+        maxMinutes:
+          type: integer
+          nullable: true
+        penaltyAmount:
+          type: number
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    SalaryPenaltyRequest:
+      type: object
+      required: [code, name, penaltyType, minMinutes, penaltyAmount]
+      properties:
+        code:
+          type: string
+          minLength: 2
+          maxLength: 50
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        penaltyType:
+          type: string
+          enum: [LATE, ABSENT]
+        minMinutes:
+          type: integer
+          minimum: 0
+        maxMinutes:
+          type: integer
+          nullable: true
+        penaltyAmount:
+          type: number
+          minimum: 0
+        isActive:
+          type: boolean
+          default: true
+
+    # ========== Salary Bonus ==========
+    SalaryBonusResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        amount:
+          type: number
+        description:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    SalaryBonusRequest:
+      type: object
+      required: [code, name, amount]
+      properties:
+        code:
+          type: string
+          minLength: 2
+          maxLength: 50
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        amount:
+          type: number
+          minimum: 0
+        description:
+          type: string
+        isActive:
+          type: boolean
+          default: true
+
+    # ========== Employee Assignment ==========
+    AssignPositionRequest:
+      type: object
+      required: [userId, positionId]
+      properties:
+        userId:
+          type: integer
+        positionId:
+          type: integer
+
+    AssignExperienceRequest:
+      type: object
+      required: [userId, experienceId]
+      properties:
+        userId:
+          type: integer
+        experienceId:
+          type: integer
+
+    AssignBonusRequest:
+      type: object
+      required: [userId, bonusId]
+      properties:
+        userId:
+          type: integer
+        bonusId:
+          type: integer
+
+    # ========== Employee Salary Detail ==========
+    EmployeeSalaryDetailResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+        fullName:
+          type: string
+        position:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+            name:
+              type: string
+            baseSalary:
+              type: number
+        experience:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+            name:
+              type: string
+            percentIncrease:
+              type: number
+        bonuses:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              code:
+                type: string
+              name:
+                type: string
+              amount:
+                type: number
+        yearsOfWork:
+          type: integer
+        totalSalary:
+          type: number
+          description: Calculated by formula
+
+    # ========== Salary Formula ==========
+    SalaryFormulaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        formulaText:
+          type: string
+          description: Formula string with variables
+        description:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SalaryFormulaRequest:
+      type: object
+      required: [formulaText]
+      properties:
+        formulaText:
+          type: string
+          description: "Formula using variables: base_salary, experience_pct, bonus_total, penalty_total, days_worked, total_work_days, years_of_work"
+          example: "base_salary * (1 + experience_pct / 100) + bonus_total - penalty_total"
+        description:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized - authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Conflict - resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BusinessError:
+      description: Business logic error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    # ========== Leave Request ==========
+    LeaveRequestResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: string
+        leaveDate:
+          type: string
+          format: date
+        reason:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+        attachmentUrls:
+          type: array
+          items:
+            type: string
+        reviewedBy:
+          type: integer
+          nullable: true
+        reviewedByName:
+          type: string
+          nullable: true
+        reviewedAt:
+          type: string
+          format: date-time
+          nullable: true
+        rejectReason:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    LeaveRequestPageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/LeaveRequestResponse'
+            page:
+              type: integer
+            size:
+              type: integer
+            totalElements:
+              type: integer
+            totalPages:
+              type: integer
+
+    LeaveRequestCreateRequest:
+      type: object
+      required: [leaveDate, reason]
+      properties:
+        leaveDate:
+          type: string
+          format: date
+          description: Ngày xin nghỉ (YYYY-MM-DD)
+        reason:
+          type: string
+          minLength: 10
+          description: Lý do xin nghỉ (tối thiểu 10 ký tự)
+        attachmentUrls:
+          type: array
+          items:
+            type: string
+          maxItems: 3
+          description: Danh sách URL file đính kèm (tối đa 3 file)
+
+    LeaveRequestUpdateRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 10
+          description: Lý do xin nghỉ (tối thiểu 10 ký tự)
+        attachmentUrls:
+          type: array
+          items:
+            type: string
+          maxItems: 3
+          description: Danh sách URL file đính kèm (tối đa 3 file)
+
+    LeaveRequestRejectRequest:
+      type: object
+      required: [rejectReason]
+      properties:
+        rejectReason:
+          type: string
+          minLength: 5
+          description: Lý do từ chối (tối thiểu 5 ký tự)
+
+    FileUploadResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          description: URL của file đã upload
+        fileName:
+          type: string
+          description: Tên file gốc
+        fileSize:
+          type: integer
+          description: Kích thước file (bytes)
+        mimeType:
+          type: string
+          description: Loại MIME của file
