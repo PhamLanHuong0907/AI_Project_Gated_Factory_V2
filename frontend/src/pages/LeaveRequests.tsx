@@ -31,7 +31,7 @@ const LEAVE_TYPE_LABELS: Record<string, string> = {
 }
 
 export function LeaveRequestsPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [requests, setRequests] = useState<LeaveRequestResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,8 +53,10 @@ export function LeaveRequestsPage() {
   ]
 
   useEffect(() => {
-    loadRequests()
-  }, [])
+    if (!authLoading) {
+      loadRequests()
+    }
+  }, [authLoading, user])
 
   const loadRequests = async () => {
     try {

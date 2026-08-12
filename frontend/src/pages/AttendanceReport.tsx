@@ -29,6 +29,7 @@ export function AttendanceReportPage() {
   const [dateTo, setDateTo] = useState(todayStr)
   const [activeTab, setActiveTab] = useState<'present' | 'absent' | 'leave'>('present')
   
+  const { loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
@@ -53,10 +54,24 @@ export function AttendanceReportPage() {
         api.leaveRequests.getAll(0, 10000)
       ])
 
-      setUsers(usersData.filter((u: any) => u.isActive))
+      let filteredUsers = usersData.filter((u: any) => u.isActive)
+      if (user?.role === 'EMPLOYEE') {
+        filteredUsers = filteredUsers.filter((u: any) => u.id === user.id)
+      }
+      setUsers(filteredUsers)
+      
+      let filteredAtt = attData.content || []
+      if (user?.role === 'EMPLOYEE') {
+        filteredAtt = filteredAtt.filter((a: any) => a.userId === user.id)
+      }
+      setAttendance(filteredAtt)
+      
+      let filteredLeaves = leaveData.content || []
+      if (user?.role === 'EMPLOYEE') {
+        filteredLeaves = filteredLeaves.filter((l: any) => l.userId === user.id)
+      }
+      setLeaveRequests(filteredLeaves)
       setShifts(shiftsData)
-      setAttendance(attData.content || [])
-      setLeaveRequests(leaveData.content || [])
     } catch (err: any) {
       setError(err.message || 'Không thể tải dữ liệu báo cáo')
     } finally {
@@ -65,8 +80,10 @@ export function AttendanceReportPage() {
   }
 
   useEffect(() => {
-    loadData()
-  }, [dateFrom, dateTo])
+    if (!authLoading) {
+      loadData()
+    }
+  }, [dateFrom, dateTo, authLoading, user])
 
   // Process data based on date range
   const generateDates = () => {

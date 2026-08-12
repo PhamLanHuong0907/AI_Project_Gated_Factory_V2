@@ -24,7 +24,7 @@ interface SalaryRecord {
 const fmt = (n: number) => n.toLocaleString('vi-VN')
 
 export function SalaryReportPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [records, setRecords] = useState<SalaryRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [month, setMonth] = useState(() => {
@@ -48,7 +48,11 @@ export function SalaryReportPage() {
     }
   }
 
-  useEffect(() => { loadData() }, [month])
+  useEffect(() => {
+    if (!authLoading) {
+      loadData()
+    }
+  }, [month, authLoading, user])
 
   const totalBase = records.reduce((s, r) => s + r.baseSalary, 0)
   const totalBonus = records.reduce((s, r) => s + r.bonuses, 0)

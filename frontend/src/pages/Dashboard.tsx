@@ -11,7 +11,10 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
   EARLY_LEAVE: { label: 'Về sớm', className: 'badge-early-leave' },
 }
 
+import { useAuth } from '../services/auth-context'
+
 export function DashboardPage() {
+  const { user, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [totalUsers, setTotalUsers] = useState(0)
   const [stats, setStats] = useState<AttendanceStatsResponse | null>(null)
@@ -20,15 +23,21 @@ export function DashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (authLoading) return
+      
       try {
         setLoading(true)
         const date = new Date().toISOString().split('T')[0]
         
-        const [usersData, statsData, activityData, leavesData] = await Promise.all([
-          api.users.getAll(),
-          api.attendance.getStats(date),
-          api.attendance.getAll({ page: 0, size: 5, sort: 'createdAt,desc' }),
-          api.leaveRequests.getAll(0, 1)
+        let usersData = await api.users.getAll()
+        if (user?.role === 'EMPLOYEE') {
+          usersData = usersData.filter((u: any) => u.id === user.id)
+        }
+        
+        const [statsData, activityData, leavesData] = await Promise.all([
+          api.attendance.getStats(date, user?.role === 'EMPLOYEE' ? user.id : undefined),
+          api.attendance.getAll({ page: 0, size: 5, sort: 'createdAt,desc', userId: user?.role === 'EMPLOYEE' ? user.id : undefined }),
+          user?.role === 'EMPLOYEE' ? api.leaveRequests.getMy(user.id, 0, 1) : api.leaveRequests.getAll(0, 1)
         ])
         
         setTotalUsers(usersData.length)
@@ -42,7 +51,7 @@ export function DashboardPage() {
       }
     }
     fetchData()
-  }, [])
+  }, [user, authLoading])
 
   if (loading) {
     return (

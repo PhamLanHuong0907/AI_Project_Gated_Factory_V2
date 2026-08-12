@@ -75,7 +75,7 @@ const STATUS_FILTERS = [
 ]
 
 export function AttendanceHistory() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [records, setRecords] = useState<AttendanceRecord[]>([])
   const [loading, setLoading] = useState(true)
@@ -93,8 +93,10 @@ export function AttendanceHistory() {
   const itemsPerPage = 10
 
   useEffect(() => {
-    loadData()
-  }, [dateFrom, dateTo, selectedShiftId])
+    if (!authLoading) {
+      loadData()
+    }
+  }, [dateFrom, dateTo, selectedShiftId, user, authLoading])
 
   const loadData = async () => {
     try {
