@@ -1,6 +1,4 @@
 const { Client } = require('pg');
-const fs = require('fs');
-const path = require('path');
 
 const client = new Client({
   connectionString: 'postgres://postgres.lwqaoytnyuqocmjmxbin:Mylife@2k597@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres',
@@ -14,13 +12,8 @@ async function run() {
     await client.connect();
     console.log("Connected to database!");
     
-    console.log("Reading V1 schema...");
-    const sql = fs.readFileSync(path.join(__dirname, 'src', 'main', 'resources', 'db', 'migration', 'V1__init_schema.sql'), 'utf8');
-
-    console.log("Executing V1 schema manually...");
-    await client.query(sql);
-    console.log("V1 schema executed successfully! Tables created.");
-
+    const result = await client.query("SELECT version, description, type, success FROM flyway_schema_history ORDER BY installed_rank");
+    console.table(result.rows);
   } catch (err) {
     console.error("Error:", err);
   } finally {
