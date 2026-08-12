@@ -114,7 +114,11 @@ export function AttendanceHistory() {
         api.shifts.getAll(),
       ])
 
-      setUsers(usersData)
+      let filteredUsers = usersData
+      if (user?.role === 'EMPLOYEE') {
+        filteredUsers = usersData.filter((u: any) => u.id === user.id)
+      }
+      setUsers(filteredUsers.filter((u: any) => u.role !== 'ADMIN'))
       setShifts(shiftsData)
 
       const records: AttendanceRecord[] = attendanceRes.content.flatMap((att: any) => {
@@ -390,19 +394,21 @@ export function AttendanceHistory() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           {/* Search */}
-          <div className="relative flex-1 min-w-[200px]">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Tìm theo tên hoặc mã nhân viên..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-                setCurrentPage(1)
-              }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
+          {user?.role !== 'EMPLOYEE' && (
+            <div className="relative flex-1 min-w-[200px]">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Tìm theo tên hoặc mã nhân viên..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             <input 
