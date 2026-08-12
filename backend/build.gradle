@@ -8,8 +8,8 @@ group = 'com.pas'
 version = '0.1.0'
 
 java {
-    sourceCompatibility = '24'
-    targetCompatibility = '24'
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
 }
 
 configurations {
