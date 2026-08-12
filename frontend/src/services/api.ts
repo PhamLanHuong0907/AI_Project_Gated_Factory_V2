@@ -64,12 +64,17 @@ async function apiFetch<T>(
       localStorage.removeItem('user')
       window.location.href = '/login'
     }
-    const body = await res.json().catch(() => ({}))
+    const text = await res.text().catch(() => '')
+    let body: any = {}
+    if (text) {
+      try { body = JSON.parse(text) } catch (e) {}
+    }
     throw new Error(body.message || `API error ${res.status}`)
   }
 
   if (res.status === 204) return undefined as T
-  return res.json()
+  const text = await res.text()
+  return text ? JSON.parse(text) : undefined as T
 }
 
 // ─── Auth ───────────────────────────────────────────────────
@@ -358,6 +363,27 @@ const salary = {
     return apiFetch('/api/salary/unassign/bonus', {
       method: 'POST',
       body: JSON.stringify(req),
+    })
+  },
+  async assignPenalty(req: SalaryAssignRequest) {
+    return apiFetch('/api/salary/assign/penalty', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    })
+  },
+  async unassignPenalty(req: SalaryAssignRequest) {
+    return apiFetch('/api/salary/unassign/penalty', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    })
+  },
+  async getFormula(): Promise<{ formula: string }> {
+    return apiFetch('/api/salary/formula')
+  },
+  async updateFormula(formula: string): Promise<void> {
+    return apiFetch('/api/salary/formula', {
+      method: 'PUT',
+      body: JSON.stringify({ formula }),
     })
   },
 

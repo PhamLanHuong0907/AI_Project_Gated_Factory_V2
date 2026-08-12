@@ -509,10 +509,15 @@ function EmployeeSalaryConfig() {
   const [bonuses, setBonuses] = useState<Bonus[]>([])
   const [penalties, setPenalties] = useState<Penalty[]>([])
   const [selectedEmployee, setSelectedEmployee] = useState<string>('')
-  const [employeeBonuses, setEmployeeBonuses] = useState<Record<string, string[]>>({})
-  const [employeePenalties, setEmployeePenalties] = useState<Record<string, string[]>>({})
+  
+  const [activeBonuses, setActiveBonuses] = useState<string[]>([])
+  const [activePenalties, setActivePenalties] = useState<string[]>([])
+  const [initialBonuses, setInitialBonuses] = useState<string[]>([])
+  const [initialPenalties, setInitialPenalties] = useState<string[]>([])
+
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [loadingDetail, setLoadingDetail] = useState(false)
   const [activeSubTab, setActiveSubTab] = useState<'bonus' | 'penalties'>('bonus')
 
   useEffect(() => {
@@ -527,8 +532,6 @@ function EmployeeSalaryConfig() {
         setEmployees(empData)
         setBonuses(bonusData)
         setPenalties(penaltyData)
-        setEmployeeBonuses({})
-        setEmployeePenalties({})
       } catch (e) {
         console.error('Failed to load employee salary config:', e)
         setEmployees([])
@@ -539,46 +542,73 @@ function EmployeeSalaryConfig() {
     loadData()
   }, [])
 
+  const handleSelectEmployee = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const userId = e.target.value
+    setSelectedEmployee(userId)
+    if (!userId) {
+      setActiveBonuses([])
+      setActivePenalties([])
+      setInitialBonuses([])
+      setInitialPenalties([])
+      return
+    }
+
+    try {
+      setLoadingDetail(true)
+      const detail = await api.salary.employeeDetail(userId)
+      const bonusIds = detail.bonuses?.map((b: any) => b.id) || []
+      const penaltyIds = detail.penalties?.map((p: any) => p.id) || []
+      setActiveBonuses(bonusIds)
+      setActivePenalties(penaltyIds)
+      setInitialBonuses(bonusIds)
+      setInitialPenalties(penaltyIds)
+    } catch (err) {
+      console.error('Failed to load employee details', err)
+      setActiveBonuses([])
+      setActivePenalties([])
+    } finally {
+      setLoadingDetail(false)
+    }
+  }
+
   const toggleBonus = (bonusId: string) => {
     if (!selectedEmployee) return
-    setEmployeeBonuses(prev => {
-      const current = prev[selectedEmployee] || []
-      const updated = current.includes(bonusId)
-        ? current.filter(id => id !== bonusId)
-        : [...current, bonusId]
-      return { ...prev, [selectedEmployee]: updated }
-    })
+    setActiveBonuses(prev => prev.includes(bonusId) ? prev.filter(id => id !== bonusId) : [...prev, bonusId])
   }
 
   const togglePenalty = (penaltyId: string) => {
     if (!selectedEmployee) return
-    setEmployeePenalties(prev => {
-      const current = prev[selectedEmployee] || []
-      const updated = current.includes(penaltyId)
-        ? current.filter(id => id !== penaltyId)
-        : [...current, penaltyId]
-      return { ...prev, [selectedEmployee]: updated }
-    })
+    setActivePenalties(prev => prev.includes(penaltyId) ? prev.filter(id => id !== penaltyId) : [...prev, penaltyId])
   }
 
   const handleSave = async () => {
     if (!selectedEmployee) return
     try {
       setSaving(true)
-      const empBonusIds = employeeBonuses[selectedEmployee] || []
-      const promises = empBonusIds.map(bonusId => 
-        api.salary.assignBonus({ userId: selectedEmployee, configId: bonusId })
-      )
+      
+      const bonusesToAdd = activeBonuses.filter(id => !initialBonuses.includes(id))
+      const bonusesToRemove = initialBonuses.filter(id => !activeBonuses.includes(id))
+      const penaltiesToAdd = activePenalties.filter(id => !initialPenalties.includes(id))
+      const penaltiesToRemove = initialPenalties.filter(id => !activePenalties.includes(id))
+
+      const promises: Promise<any>[] = []
+
+      bonusesToAdd.forEach(configId => promises.push(api.salary.assignBonus({ userId: selectedEmployee, configId })))
+      bonusesToRemove.forEach(configId => promises.push(api.salary.unassignBonus({ userId: selectedEmployee, configId })))
+      penaltiesToAdd.forEach(configId => promises.push(api.salary.assignPenalty({ userId: selectedEmployee, configId })))
+      penaltiesToRemove.forEach(configId => promises.push(api.salary.unassignPenalty({ userId: selectedEmployee, configId })))
+
       await Promise.all(promises)
-      alert('Đã lưu cấu hình thưởng nhân viên!')
+
+      setInitialBonuses(activeBonuses)
+      setInitialPenalties(activePenalties)
+      alert('Đã lưu cấu hình thưởng/phạt nhân viên thành công!')
     } catch (e: any) {
-      alert(e.message)
+      alert(e.message || 'Có lỗi xảy ra khi lưu cấu hình')
     } finally { setSaving(false) }
   }
 
   const selectedEmp = employees.find(e => e.id === selectedEmployee)
-  const empBonusIds = employeeBonuses[selectedEmployee] || []
-  const empPenaltyIds = employeePenalties[selectedEmployee] || []
 
   return (
     <div className="space-y-lg">
@@ -587,7 +617,7 @@ function EmployeeSalaryConfig() {
         <h3 className="text-headline-lg font-semibold text-neutral-text-primary mb-md">Chọn nhân viên</h3>
         <select
           value={selectedEmployee}
-          onChange={(e) => setSelectedEmployee(e.target.value)}
+          onChange={handleSelectEmployee}
           className="w-full rounded-lg border border-neutral-border px-md py-sm text-body-sm focus:border-primary focus:outline-none"
         >
           <option value="">-- Chọn nhân viên --</option>
@@ -597,7 +627,11 @@ function EmployeeSalaryConfig() {
         </select>
       </div>
 
-      {selectedEmployee && (
+      {loadingDetail && (
+        <div className="flex justify-center p-xl"><Loader2 className="animate-spin text-primary" size={32} /></div>
+      )}
+
+      {selectedEmployee && !loadingDetail && (
         <>
           {/* Employee Info */}
           <div className="card p-lg">
@@ -620,7 +654,7 @@ function EmployeeSalaryConfig() {
                 activeSubTab === 'bonus' ? 'border-primary text-primary' : 'border-transparent text-neutral-text-muted'
               }`}
             >
-              🎁 Thưởng ({empBonusIds.length}/{bonuses.length})
+              🎁 Thưởng ({activeBonuses.length}/{bonuses.length})
             </button>
             <button
               onClick={() => setActiveSubTab('penalties')}
@@ -628,7 +662,7 @@ function EmployeeSalaryConfig() {
                 activeSubTab === 'penalties' ? 'border-primary text-primary' : 'border-transparent text-neutral-text-muted'
               }`}
             >
-              ⚠️ Phạt ({empPenaltyIds.length}/{penalties.length})
+              ⚠️ Phạt ({activePenalties.length}/{penalties.length})
             </button>
           </div>
 
@@ -636,7 +670,7 @@ function EmployeeSalaryConfig() {
           {activeSubTab === 'bonus' && (
             <div className="card divide-y divide-neutral-border">
               {bonuses.map((bonus) => {
-                const isChecked = empBonusIds.includes(bonus.id)
+                const isChecked = activeBonuses.includes(bonus.id)
                 return (
                   <label key={bonus.id} className="flex items-center gap-md p-md hover:bg-neutral-surface cursor-pointer">
                     <div className={`flex h-6 w-6 items-center justify-center rounded border-2 ${
@@ -667,7 +701,7 @@ function EmployeeSalaryConfig() {
           {activeSubTab === 'penalties' && (
             <div className="card divide-y divide-neutral-border">
               {penalties.map((penalty) => {
-                const isChecked = empPenaltyIds.includes(penalty.id)
+                const isChecked = activePenalties.includes(penalty.id)
                 return (
                   <label key={penalty.id} className="flex items-center gap-md p-md hover:bg-neutral-surface cursor-pointer">
                     <div className={`flex h-6 w-6 items-center justify-center rounded border-2 ${
@@ -719,49 +753,125 @@ function EmployeeSalaryConfig() {
 
 // ─── Formula Tab ───────────────────────────────────────────
 function FormulaTab() {
-  const [formula, setFormula] = useState('Lương cơ bản + (Lương cơ bản × Tỷ lệ kinh nghiệm) + Tổng thưởng - Tổng phạt')
-  const [salaryVariables] = useState([
-    { name: 'Lương cơ bản', code: 'BASE_SALARY', description: 'Lương theo vị trí', example: '8,000,000 VNĐ' },
-    { name: 'Tỷ lệ kinh nghiệm', code: 'EXPERIENCE_RATE', description: 'Phần trăm theo thâm niên', example: '5%, 10%, 15%' },
-    { name: 'Phụ cấp', code: 'ALLOWANCE', description: 'Phụ cấp ăn trưa, xăng xe...', example: '500,000 - 1,000,000 VNĐ' },
-    { name: 'Tổng thưởng', code: 'TOTAL_BONUS', description: 'Tổng các khoản thưởng được tick', example: 'Tính theo cấu hình' },
-    { name: 'Tổng phạt', code: 'TOTAL_PENALTY', description: 'Tổng các khoản phạt được tick', example: 'Tính theo cấu hình' },
-    { name: 'Số ngày công chuẩn', code: 'WORK_DAYS', description: 'Số ngày làm việc trong tháng', example: '22 ngày' },
-    { name: 'Số ngày công thực tế', code: 'ACTUAL_DAYS', description: 'Số ngày đi làm thực tế', example: '21 ngày' },
-    { name: 'Số ngày đi trễ', code: 'LATE_DAYS', description: 'Số ngày đi trễ', example: '2 ngày' },
-    { name: 'Số ngày vắng', code: 'ABSENT_DAYS', description: 'Số ngày vắng mặt', example: '1 ngày' },
-    { name: 'BHXH/BHYT', code: 'INSURANCE', description: 'Bảo hiểm xã hội + y tế (10.5%)', example: 'Tự động tính' },
-  ])
+  const [formula, setFormula] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [salaryVariables, setSalaryVariables] = useState<any[]>([])
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        const [bonusData, penaltyData, formulaData] = await Promise.all([
+          api.salary.bonus(),
+          api.salary.penalties(),
+          api.salary.getFormula().catch(() => ({ formula: '{BASE_SALARY} + {TOTAL_BONUS} - {TOTAL_PENALTY}' }))
+        ])
+        setFormula(formulaData?.formula || '{BASE_SALARY} + {TOTAL_BONUS} - {TOTAL_PENALTY}')
+        
+        const baseVars = [
+          { name: 'Lương cơ bản', code: 'BASE_SALARY', description: 'Mức lương chuẩn theo chức vụ', example: '10,000,000 VNĐ' },
+          { name: 'Tổng các khoản thưởng', code: 'TOTAL_BONUS', description: 'Tổng cộng tất cả Thưởng của nhân viên', example: '' },
+          { name: 'Tổng các khoản phạt', code: 'TOTAL_PENALTY', description: 'Tổng cộng tất cả Phạt của nhân viên', example: '' },
+        ]
+
+        const bonusVars = bonusData.map((b: any) => ({
+          name: `[Thưởng] ${b.name}`,
+          code: `BONUS_${b.id.replace(/-/g, '_')}`,
+          description: b.description || 'Khoản thưởng',
+          example: `${b.amount.toLocaleString('vi-VN')} VNĐ`
+        }))
+
+        const penaltyVars = penaltyData.map((p: any) => ({
+          name: `[Phạt] ${p.name}`,
+          code: `PENALTY_${p.id.replace(/-/g, '_')}`,
+          description: p.description || 'Khoản phạt',
+          example: `${p.amount.toLocaleString('vi-VN')} VNĐ`
+        }))
+
+        setSalaryVariables([...baseVars, ...bonusVars, ...penaltyVars])
+      } catch (e) {
+        console.error('Failed to load formula config:', e)
+      } finally { setLoading(false) }
+    }
+    loadData()
+  }, [])
+
+  const insertText = (text: string) => {
+    setFormula(prev => prev + (prev.endsWith(' ') || prev === '' ? '' : ' ') + text + ' ')
+  }
+
+  const handleSave = async () => {
+    try {
+      setSaving(true)
+      await api.salary.updateFormula(formula)
+      alert('Đã lưu công thức tính lương thành công!')
+    } catch (e: any) {
+      alert(e.message || 'Lỗi khi lưu công thức')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="space-y-lg">
-      {/* Formula Display */}
       <div className="card p-lg">
-        <h3 className="text-headline-lg font-semibold text-neutral-text-primary mb-md">Công thức tính lương</h3>
-        <div className="rounded-lg bg-primary/5 border border-primary/20 p-lg">
-          <div className="text-body-lg font-mono text-primary whitespace-pre-wrap">
-            {formula}
-          </div>
+        <h3 className="text-headline-lg font-semibold text-neutral-text-primary mb-md">Tạo công thức tùy chỉnh</h3>
+        
+        <div className="mb-sm flex flex-wrap gap-2">
+          {['+', '-', '*', '/', '(', ')'].map(op => (
+            <button
+              key={op}
+              onClick={() => insertText(op)}
+              className="flex h-8 w-8 items-center justify-center rounded border border-neutral-border bg-neutral-surface font-mono font-medium hover:bg-neutral-border hover:text-primary transition-colors"
+            >
+              {op}
+            </button>
+          ))}
+          <div className="h-8 w-px bg-neutral-border mx-2" />
+          <button
+            onClick={() => setFormula('')}
+            className="flex h-8 px-3 items-center justify-center rounded border border-error bg-error/10 text-error text-sm font-medium hover:bg-error hover:text-white transition-colors"
+          >
+            Xóa trắng
+          </button>
         </div>
-        <p className="text-body-sm text-neutral-text-secondary mt-md">
-          Công thức mặc định: <strong>Thực nhận = Lương cơ bản + Thâm niên + Phụ cấp + Thưởng - Phạt - BHXH/BHYT</strong>
-        </p>
+
+        {loading ? (
+          <div className="flex justify-center p-md"><Loader2 className="animate-spin text-primary" /></div>
+        ) : (
+          <textarea
+            value={formula}
+            onChange={(e) => setFormula(e.target.value)}
+            rows={4}
+            className="w-full rounded-lg border border-neutral-border px-md py-sm font-mono text-body-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            placeholder="Nhấp vào biến lương bên dưới hoặc nhập thủ công..."
+          />
+        )}
+        <div className="flex justify-between items-center mt-md">
+          <p className="text-body-sm text-neutral-text-secondary">
+            Mẹo: Bấm vào <code className="text-primary font-mono text-xs font-bold bg-primary/10 px-1 rounded">Mã</code> ở bảng dưới để chèn vào công thức.
+          </p>
+          <button 
+            onClick={handleSave}
+            disabled={saving || loading}
+            className="flex items-center gap-sm rounded-lg bg-primary px-md py-2 text-body-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50"
+          >
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Lưu công thức
+          </button>
+        </div>
       </div>
 
-      {/* Available Variables */}
       <div className="card p-lg">
-        <h3 className="text-headline-lg font-semibold text-neutral-text-primary mb-md">Biến lương có sẵn</h3>
-        <p className="text-body-sm text-neutral-text-secondary mb-md">
-          Sử dụng các biến bên dưới để tạo công thức tính lương tùy chỉnh
-        </p>
+        <h3 className="text-headline-lg font-semibold text-neutral-text-primary mb-md">Danh sách Biến lương</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-border">
-                <th className="py-3 px-4 text-left font-medium text-neutral-text-secondary">Biến</th>
-                <th className="py-3 px-4 text-left font-medium text-neutral-text-secondary">Mã</th>
-                <th className="py-3 px-4 text-left font-medium text-neutral-text-secondary">Mô tả</th>
-                <th className="py-3 px-4 text-left font-medium text-neutral-text-secondary">Ví dụ</th>
+                <th className="py-3 px-4 text-left font-medium text-neutral-text-secondary w-1/4">Biến</th>
+                <th className="py-3 px-4 text-left font-medium text-neutral-text-secondary w-1/4">Mã (Click để chèn)</th>
+                <th className="py-3 px-4 text-left font-medium text-neutral-text-secondary w-1/4">Mô tả</th>
+                <th className="py-3 px-4 text-left font-medium text-neutral-text-secondary w-1/4">Ví dụ</th>
               </tr>
             </thead>
             <tbody>
@@ -769,7 +879,13 @@ function FormulaTab() {
                 <tr key={i} className="border-b border-neutral-border hover:bg-neutral-surface">
                   <td className="py-3 px-4 font-medium text-neutral-text-primary">{v.name}</td>
                   <td className="py-3 px-4">
-                    <code className="rounded bg-primary/10 px-2 py-1 text-xs font-mono text-primary">{`{${v.code}}`}</code>
+                    <button
+                      onClick={() => insertText(`{${v.code}}`)}
+                      className="rounded bg-primary/10 px-2 py-1 text-xs font-mono font-bold text-primary hover:bg-primary hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1"
+                      title="Thêm vào công thức"
+                    >
+                      <Plus size={12} /> {`{${v.code}}`}
+                    </button>
                   </td>
                   <td className="py-3 px-4 text-neutral-text-secondary">{v.description}</td>
                   <td className="py-3 px-4 text-neutral-text-secondary">{v.example}</td>
@@ -777,22 +893,6 @@ function FormulaTab() {
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Formula Builder */}
-      <div className="card p-lg">
-        <h3 className="text-headline-lg font-semibold text-neutral-text-primary mb-md">Tạo công thức tùy chỉnh</h3>
-        <textarea
-          value={formula}
-          onChange={(e) => setFormula(e.target.value)}
-          rows={4}
-          className="w-full rounded-lg border border-neutral-border px-md py-sm font-mono text-body-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-        />
-        <div className="flex justify-end mt-md">
-          <button className="flex items-center gap-sm rounded-lg bg-primary px-md py-2 text-body-sm font-medium text-white hover:bg-primary-dark">
-            <Save size={16} /> Lưu công thức
-          </button>
         </div>
       </div>
     </div>

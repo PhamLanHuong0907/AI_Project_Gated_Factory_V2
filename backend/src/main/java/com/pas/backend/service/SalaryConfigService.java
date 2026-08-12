@@ -12,8 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +35,8 @@ public class SalaryConfigService {
     private final EmpSalaryPositionRepository empSalaryPositionRepository;
     private final EmpSalaryExperienceRepository empSalaryExperienceRepository;
     private final EmpSalaryBonusRepository empSalaryBonusRepository;
+    private final EmpSalaryPenaltyRepository empSalaryPenaltyRepository;
+    private final ConfigSalaryRepository configSalaryRepository;
     private final UserRepository userRepository;
 
     // ========== Positions ==========
@@ -325,6 +335,53 @@ public class SalaryConfigService {
         empSalaryBonusRepository.deleteByUserIdAndBonusId(request.getUserId(), request.getConfigId());
     }
 
+    @Transactional
+    public void assignPenalty(SalaryAssignRequest request) {
+        userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + request.getUserId()));
+        salaryPenaltyRepository.findById(request.getConfigId())
+                .orElseThrow(() -> new ResourceNotFoundException("Salary penalty not found with id: " + request.getConfigId()));
+
+        List<EmpSalaryPenalty> existing = empSalaryPenaltyRepository.findByUserId(request.getUserId());
+        boolean alreadyAssigned = existing.stream()
+                .anyMatch(e -> e.getPenaltyId().equals(request.getConfigId()));
+        if (alreadyAssigned) {
+            throw new BadRequestException("Penalty already assigned to this employee");
+        }
+
+        EmpSalaryPenalty empSalaryPenalty = EmpSalaryPenalty.builder()
+                .userId(request.getUserId())
+                .penaltyId(request.getConfigId())
+                .assignedAt(OffsetDateTime.now())
+                .build();
+        empSalaryPenaltyRepository.save(empSalaryPenalty);
+    }
+
+    @Transactional
+    public void unassignPenalty(SalaryAssignRequest request) {
+        empSalaryPenaltyRepository.deleteByUserIdAndPenaltyId(request.getUserId(), request.getConfigId());
+    }
+
+    // ========== Formula ==========
+
+    public String getSalaryFormula() {
+        List<ConfigSalary> configs = configSalaryRepository.findAll();
+        if (configs.isEmpty()) {
+            return "{BASE_SALARY} + {TOTAL_BONUS} - {TOTAL_PENALTY}";
+        }
+        return configs.get(configs.size() - 1).getFormula();
+    }
+
+    @Transactional
+    public void updateSalaryFormula(String formula) {
+        if (formula == null || formula.isBlank()) {
+            throw new BadRequestException("Formula cannot be empty");
+        }
+        ConfigSalary config = new ConfigSalary();
+        config.setFormula(formula);
+        configSalaryRepository.save(config);
+    }
+
     // ========== Employee Salary Detail ==========
 
     public EmployeeSalaryDetailResponse getEmployeeSalaryDetail(UUID userId) {
@@ -345,11 +402,7 @@ public class SalaryConfigService {
             SalaryPosition pos = salaryPositionRepository.findById(user.getPositionId()).orElse(null);
             if (pos != null) {
                 positionResponses.add(toPositionResponse(pos));
-                
-                // Fallback to base salary of position
                 BigDecimal matchingSalary = pos.getBaseSalary();
-                
-                // Look for matching experience tier
                 if (pos.getExperiences() != null) {
                     for (SalaryPositionExperience exp : pos.getExperiences()) {
                         boolean meetsMin = exp.getMinYears() == null || currentExperienceYears >= exp.getMinYears();
@@ -360,7 +413,7 @@ public class SalaryConfigService {
                         }
                     }
                 }
-                baseSalary = matchingSalary; // Fixed assignment since BigDecimal is immutable
+                baseSalary = matchingSalary;
             }
         }
 
@@ -370,21 +423,72 @@ public class SalaryConfigService {
                 .filter(java.util.Objects::nonNull)
                 .toList();
 
+        List<SalaryPenaltyResponse> penalties = empSalaryPenaltyRepository.findByUserId(userId).stream()
+                .map(esp -> salaryPenaltyRepository.findById(esp.getPenaltyId())
+                        .map(this::toPenaltyResponse).orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
         BigDecimal totalBonus = bonuses.stream()
                 .map(SalaryBonusResponse::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal calculatedSalary = baseSalary.add(totalBonus);
+        BigDecimal totalPenalty = penalties.stream()
+                .map(SalaryPenaltyResponse::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Dynamic calculation
+        String rawFormula = getSalaryFormula();
+        String spelFormula = rawFormula;
+        Map<String, Object> vars = new HashMap<>();
+        vars.put("BASE_SALARY", baseSalary.doubleValue());
+        vars.put("TOTAL_BONUS", totalBonus.doubleValue());
+        vars.put("TOTAL_PENALTY", totalPenalty.doubleValue());
+
+        List<SalaryBonus> allBonuses = salaryBonusRepository.findAll();
+        for (SalaryBonus b : allBonuses) {
+            String code = "BONUS_" + b.getId().toString().replace("-", "_");
+            double amount = bonuses.stream().anyMatch(eb -> eb.getId().equals(b.getId())) ? b.getAmount().doubleValue() : 0.0;
+            vars.put(code, amount);
+            spelFormula = spelFormula.replace("{BONUS_" + b.getId() + "}", "#" + code);
+        }
+
+        List<SalaryPenalty> allPenalties = salaryPenaltyRepository.findAll();
+        for (SalaryPenalty p : allPenalties) {
+            String code = "PENALTY_" + p.getId().toString().replace("-", "_");
+            double amount = penalties.stream().anyMatch(ep -> ep.getId().equals(p.getId())) ? p.getAmount().doubleValue() : 0.0;
+            vars.put(code, amount);
+            spelFormula = spelFormula.replace("{PENALTY_" + p.getId() + "}", "#" + code);
+        }
+
+        spelFormula = spelFormula.replace("{BASE_SALARY}", "#BASE_SALARY")
+                                 .replace("{TOTAL_BONUS}", "#TOTAL_BONUS")
+                                 .replace("{TOTAL_PENALTY}", "#TOTAL_PENALTY");
+
+        BigDecimal calculatedSalary = BigDecimal.ZERO;
+        try {
+            ExpressionParser parser = new SpelExpressionParser();
+            StandardEvaluationContext context = new StandardEvaluationContext();
+            context.setVariables(vars);
+            Number result = parser.parseExpression(spelFormula).getValue(context, Number.class);
+            if (result != null) {
+                calculatedSalary = BigDecimal.valueOf(result.doubleValue());
+            }
+        } catch (Exception e) {
+            calculatedSalary = baseSalary.add(totalBonus).subtract(totalPenalty);
+        }
 
         return EmployeeSalaryDetailResponse.builder()
                 .userId(userId)
                 .userName(user.getFullName())
                 .baseSalary(baseSalary)
                 .positions(positionResponses)
-                .experiences(new ArrayList<>()) // Legacy experience not used
+                .experiences(new ArrayList<>())
                 .bonuses(bonuses)
+                .penalties(penalties)
                 .totalBaseSalary(baseSalary)
                 .totalBonus(totalBonus)
+                .totalPenalty(totalPenalty)
                 .calculatedSalary(calculatedSalary)
                 .build();
     }
@@ -473,11 +577,12 @@ public class SalaryConfigService {
             
             double baseSalary = detail.getBaseSalary() != null ? detail.getBaseSalary().doubleValue() : 0;
             double totalBonus = detail.getTotalBonus() != null ? detail.getTotalBonus().doubleValue() : 0;
+            double totalPenalty = detail.getTotalPenalty() != null ? detail.getTotalPenalty().doubleValue() : 0;
             double netSalary = detail.getCalculatedSalary() != null ? detail.getCalculatedSalary().doubleValue() : 0;
             report.setBaseSalary(baseSalary);
             report.setExperienceBonus(0); // Legacy, set to 0 or remove from DTO
             report.setBonuses(totalBonus);
-            report.setPenalties(0);
+            report.setPenalties(totalPenalty);
             report.setNetSalary(netSalary);
             
             return report;

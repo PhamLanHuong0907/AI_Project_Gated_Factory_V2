@@ -279,6 +279,44 @@ public class SalaryConfigController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/assign/penalty")
+    @Operation(summary = "Assign a salary penalty to an employee")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Penalty assigned"),
+            @ApiResponse(responseCode = "400", description = "Invalid input or already assigned")
+    })
+    public ResponseEntity<Void> assignPenalty(@Valid @RequestBody SalaryAssignRequest request) {
+        salaryConfigService.assignPenalty(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/unassign/penalty")
+    @Operation(summary = "Unassign a salary penalty from an employee")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Penalty unassigned"),
+            @ApiResponse(responseCode = "404", description = "Assignment not found")
+    })
+    public ResponseEntity<Void> unassignPenalty(@Valid @RequestBody SalaryAssignRequest request) {
+        salaryConfigService.unassignPenalty(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ========== Formula ==========
+
+    @GetMapping("/formula")
+    @Operation(summary = "Get the active salary calculation formula")
+    public ResponseEntity<java.util.Map<String, String>> getSalaryFormula() {
+        String formula = salaryConfigService.getSalaryFormula();
+        return ResponseEntity.ok(java.util.Map.of("formula", formula));
+    }
+
+    @PutMapping("/formula")
+    @Operation(summary = "Update the active salary calculation formula")
+    public ResponseEntity<Void> updateSalaryFormula(@RequestBody java.util.Map<String, String> request) {
+        salaryConfigService.updateSalaryFormula(request.get("formula"));
+        return ResponseEntity.noContent().build();
+    }
+
     // ========== Employee Salary Detail ==========
 
     @GetMapping("/employee/{userId}")

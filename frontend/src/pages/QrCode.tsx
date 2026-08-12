@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw, Download } from 'lucide-react'
+import { RefreshCw, Download, Printer } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 
 /**
@@ -68,6 +68,61 @@ export function QrCodePage() {
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)))
   }
 
+  const handlePrint = () => {
+    const svg = document.getElementById('qr-code-svg') as SVGElement | null
+    if (!svg) return
+    const svgData = new XMLSerializer().serializeToString(svg)
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    const img = new Image()
+    img.onload = () => {
+      canvas.width = img.width
+      canvas.height = img.height
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0)
+      
+      const dataUrl = canvas.toDataURL('image/png')
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>In Mã QR Chấm Công</title>
+              <style>
+                body {
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100vh;
+                  margin: 0;
+                  font-family: sans-serif;
+                }
+                h1 {
+                  font-size: 24px;
+                  margin-bottom: 20px;
+                }
+                img {
+                  max-width: 100%;
+                  height: auto;
+                  width: 400px;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>Mã QR Chấm Công</h1>
+              <img src="${dataUrl}" onload="window.print(); window.close();" />
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+      }
+    }
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)))
+  }
+
   return (
     <div className="flex flex-col items-center gap-lg py-xl">
       {/* QR Code Card */}
@@ -118,10 +173,17 @@ export function QrCodePage() {
           </button>
           <button
             onClick={handleDownload}
-            className="flex items-center gap-sm rounded bg-primary px-md py-sm text-body-sm font-medium text-white hover:bg-primary-dark"
+            className="flex items-center gap-sm rounded border border-neutral-border px-md py-sm text-body-sm font-medium text-neutral-text-secondary hover:bg-neutral-surface"
           >
             <Download size={16} />
             Tải xuống
+          </button>
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-sm rounded bg-primary px-md py-sm text-body-sm font-medium text-white hover:bg-primary-dark"
+          >
+            <Printer size={16} />
+            In mã
           </button>
         </div>
       </div>

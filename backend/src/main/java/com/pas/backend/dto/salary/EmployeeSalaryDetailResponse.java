@@ -17,7 +17,9 @@ public class EmployeeSalaryDetailResponse {
     private List<SalaryPositionResponse> positions;
     private List<SalaryExperienceResponse> experiences;
     private List<SalaryBonusResponse> bonuses;
+    private List<SalaryPenaltyResponse> penalties;
     private BigDecimal totalBaseSalary;
     private BigDecimal totalBonus;
+    private BigDecimal totalPenalty;
     private BigDecimal calculatedSalary;
 }
