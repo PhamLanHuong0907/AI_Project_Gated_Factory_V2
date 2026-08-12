@@ -2,8 +2,7 @@
 FROM gradle:8.5-jdk17-alpine AS builder
 WORKDIR /app
 COPY . .
-RUN chmod +x ./gradlew
-RUN ./gradlew build -x test
+RUN gradle build -x test
 
 # Run Stage
 FROM eclipse-temurin:17-jre-alpine
