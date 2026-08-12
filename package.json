@@ -12,6 +12,7 @@
     "@playwright/test": "^1.62.1"
   },
   "dependencies": {
+    "pg": "^8.23.0",
     "playwright": "^1.62.1"
   },
   "version": "1.0.0",
