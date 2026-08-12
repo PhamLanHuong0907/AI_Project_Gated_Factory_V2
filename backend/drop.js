@@ -1,4 +1,6 @@
 const { Client } = require('pg');
+const fs = require('fs');
+const path = require('path');
 
 const client = new Client({
   connectionString: 'postgres://postgres.lwqaoytnyuqocmjmxbin:Mylife@2k597@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres',
@@ -12,13 +14,13 @@ async function run() {
     await client.connect();
     console.log("Connected to database!");
     
-    const result = await client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public'");
-    console.log("Tables in public schema:");
-    result.rows.forEach(row => console.log(" - " + row.table_name));
+    console.log("Reading V1 schema...");
+    const sql = fs.readFileSync(path.join(__dirname, 'src', 'main', 'resources', 'db', 'migration', 'V1__init_schema.sql'), 'utf8');
 
-    console.log("Dropping flyway_schema_history...");
-    await client.query("DROP TABLE IF EXISTS flyway_schema_history CASCADE");
-    console.log("flyway_schema_history dropped successfully.");
+    console.log("Executing V1 schema manually...");
+    await client.query(sql);
+    console.log("V1 schema executed successfully! Tables created.");
+
   } catch (err) {
     console.error("Error:", err);
   } finally {
