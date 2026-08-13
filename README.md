@@ -29,9 +29,10 @@ Hệ thống có 3 vai trò (Roles) với các chức năng chuyên biệt:
 - **Quản lý Ca làm việc:** Tạo các ca làm việc (Ví dụ: Ca Sáng 07:00 - 12:00, Ca Chiều 13:00 - 18:00).
 - **Tạo mã QR Chấm công (QR Generator):** 
   - Admin mở màn hình tạo mã QR trên một thiết bị lớn đặt tại cổng nhà máy.
-  - Mã QR được hệ thống sinh ra kèm *chữ ký thời gian*, **tự động thay đổi 5 phút một lần** để chống việc nhân viên chụp ảnh lại mã QR gửi cho người khác chấm công hộ.
+  - Mã QR được hệ thống sinh ra kèm *chữ ký thời gian*, **tự động thay đổi theo số phút một lần dựa theo cài đặt** để chống việc nhân viên chụp ảnh lại mã QR gửi cho người khác chấm công hộ.
 - **Cấu hình Lương:** Thiết lập mức phạt đi trễ, phạt nghỉ không phép, lương cơ bản chung, v.v.
 - **Báo cáo tổng hợp:** Xem Báo cáo chấm công chi tiết và Bảng lương của toàn bộ nhà máy.
+-  **Cài đặt:** Cài đặt tọa độ GPS công ty, thời gian tối đa cho phép trễ, cài đặt thời gian hiệu lực của QR.
 
 ### 2. Quản lý Nhân sự (HR Manager)
 - **Duyệt đơn từ:** Tiếp nhận, xem xét và đưa ra quyết định (Phê duyệt / Từ chối) đối với các đơn xin nghỉ phép của nhân viên.
@@ -85,4 +86,4 @@ Sau khi database được khởi tạo, bạn có thể sử dụng các tài kh
 - **Nhân viên:** `employee@pas.vn` / `emp123456`
 
 ---
-*Phát triển bởi đội ngũ Kỹ sư Hệ thống - Precision Attendance System (2026)*
+
