@@ -7,12 +7,14 @@ import com.pas.backend.dto.attendance.AttendanceResponse;
 import com.pas.backend.dto.attendance.AttendanceStatsResponse;
 import com.pas.backend.entity.Attendance;
 import com.pas.backend.entity.ConfigAttendance;
+import com.pas.backend.entity.ConfigGps;
 import com.pas.backend.entity.Shift;
 import com.pas.backend.entity.User;
 import com.pas.backend.exception.BadRequestException;
 import com.pas.backend.exception.ResourceNotFoundException;
 import com.pas.backend.repository.AttendanceRepository;
 import com.pas.backend.repository.ConfigAttendanceRepository;
+import com.pas.backend.repository.ConfigGpsRepository;
 import com.pas.backend.repository.ShiftRepository;
 import com.pas.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,18 @@ public class AttendanceService {
     private final UserRepository userRepository;
     private final ShiftRepository shiftRepository;
     private final ConfigAttendanceRepository configAttendanceRepository;
+    private final ConfigGpsRepository configGpsRepository;
+
+    private double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+        int earthRadiusMeters = 6371000;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return earthRadiusMeters * c;
+    }
 
     public Page<AttendanceResponse> getAllAttendance(Pageable pageable, AttendanceFilterRequest filter) {
         Specification<Attendance> spec = Specification.where(null);
@@ -93,6 +107,19 @@ public class AttendanceService {
 
         Shift shift = shiftRepository.findById(request.getShiftId())
                 .orElseThrow(() -> new ResourceNotFoundException("Shift not found with id: " + request.getShiftId()));
+
+        ConfigGps gpsConfig = configGpsRepository.findFirstByIsActiveTrue().orElse(null);
+        if (gpsConfig != null && request.getCheckInLat() != null && request.getCheckInLng() != null) {
+            double distance = calculateDistance(
+                request.getCheckInLat().doubleValue(),
+                request.getCheckInLng().doubleValue(),
+                gpsConfig.getLatitude().doubleValue(),
+                gpsConfig.getLongitude().doubleValue()
+            );
+            if (distance > gpsConfig.getRadius().doubleValue()) {
+                throw new BadRequestException("Check-in thất bại: Bạn đang ở ngoài phạm vi cho phép (" + Math.round(distance) + "m > " + gpsConfig.getRadius().intValue() + "m). Vui lòng di chuyển lại gần công ty.");
+            }
+        }
 
         ConfigAttendance config = configAttendanceRepository.findFirstByIsActiveTrue().orElse(null);
         int lateThresholdMinutes = (config != null) ? config.getLateThresholdMinutes() : 0;
@@ -193,8 +220,22 @@ public class AttendanceService {
         OffsetDateTime checkOutTime = OffsetDateTime.now();
         attendance.setCheckOut(checkOutTime);
         if (request != null) {
-            if (request.getCheckOutLat() != null) attendance.setCheckOutLat(request.getCheckOutLat());
-            if (request.getCheckOutLng() != null) attendance.setCheckOutLng(request.getCheckOutLng());
+            if (request.getCheckOutLat() != null && request.getCheckOutLng() != null) {
+                ConfigGps gpsConfig = configGpsRepository.findFirstByIsActiveTrue().orElse(null);
+                if (gpsConfig != null) {
+                    double distance = calculateDistance(
+                        request.getCheckOutLat().doubleValue(),
+                        request.getCheckOutLng().doubleValue(),
+                        gpsConfig.getLatitude().doubleValue(),
+                        gpsConfig.getLongitude().doubleValue()
+                    );
+                    if (distance > gpsConfig.getRadius().doubleValue()) {
+                        throw new BadRequestException("Check-out thất bại: Bạn đang ở ngoài phạm vi cho phép (" + Math.round(distance) + "m > " + gpsConfig.getRadius().intValue() + "m). Vui lòng di chuyển lại gần công ty.");
+                    }
+                }
+                attendance.setCheckOutLat(request.getCheckOutLat());
+                attendance.setCheckOutLng(request.getCheckOutLng());
+            }
         }
         
         int earlyMinutes = 0;
