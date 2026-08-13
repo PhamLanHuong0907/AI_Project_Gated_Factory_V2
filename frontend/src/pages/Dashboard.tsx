@@ -20,6 +20,8 @@ export function DashboardPage() {
   const [stats, setStats] = useState<AttendanceStatsResponse | null>(null)
   const [recentActivity, setRecentActivity] = useState<AttendanceResponse[]>([])
   const [pendingLeaves, setPendingLeaves] = useState(0)
+  const [weeklyChartData, setWeeklyChartData] = useState<{ label: string; value: number }[]>([])
+  const [avgWorkingHours, setAvgWorkingHours] = useState('0')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,16 +36,74 @@ export function DashboardPage() {
           usersData = usersData.filter((u: any) => u.id === user.id)
         }
         
-        const [statsData, activityData, leavesData] = await Promise.all([
+        const sevenDaysAgo = new Date()
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
+        const dateFrom = sevenDaysAgo.toISOString().split('T')[0]
+
+        const [statsData, activityData, leavesData, weeklyAttendanceData] = await Promise.all([
           api.attendance.getStats(date, user?.role === 'EMPLOYEE' ? user.id : undefined),
           api.attendance.getAll({ page: 0, size: 5, sort: 'createdAt,desc', userId: user?.role === 'EMPLOYEE' ? user.id : undefined }),
-          user?.role === 'EMPLOYEE' ? api.leaveRequests.getMy(user.id, 0, 1) : api.leaveRequests.getAll(0, 1)
+          user?.role === 'EMPLOYEE' ? api.leaveRequests.getMy(user.id, 0, 1) : api.leaveRequests.getAll(0, 1),
+          api.attendance.getAll({ dateFrom, dateTo: date, size: 1000, userId: user?.role === 'EMPLOYEE' ? user.id : undefined })
         ])
         
         setTotalUsers(usersData.length)
         setStats(statsData)
         setRecentActivity(activityData.content)
         setPendingLeaves(leavesData.totalElements)
+
+        // Compute Weekly Chart Data
+        const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
+        const chartData = []
+        let totalHours = 0
+        let completedShiftsCount = 0
+
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date()
+          d.setDate(d.getDate() - i)
+          const dateStr = d.toISOString().split('T')[0]
+          const label = days[d.getDay()]
+          
+          const recordsForDay = weeklyAttendanceData.content.filter(r => r.date === dateStr)
+          let attendanceRate = 0
+          if (usersData.length > 0) {
+             const presentCount = new Set(recordsForDay.filter(r => r.status !== 'ABSENT' && r.status !== 'ON_LEAVE').map(r => r.userId)).size
+             attendanceRate = Math.round((presentCount / usersData.length) * 100)
+          }
+          chartData.push({ label, value: attendanceRate })
+
+          // Calculate hours for this day
+          recordsForDay.forEach(r => {
+             if (r.checkInTime && r.checkOutTime) {
+                const parseTime = (t: string) => {
+                   try {
+                     // Check if ISO format
+                     if (t.includes('T')) return new Date(t).getTime();
+                     // Otherwise try to parse the old HH:mm SA/CH format
+                     const parts = t.split(' ');
+                     if (parts.length < 2) return 0;
+                     const [hm, ampm] = parts;
+                     const [h, m] = hm.split(':').map(Number);
+                     let hours = h;
+                     if (ampm.toUpperCase() === 'CH' && h < 12) hours += 12;
+                     if (ampm.toUpperCase() === 'SA' && h === 12) hours = 0;
+                     const dateObj = new Date(r.date);
+                     dateObj.setHours(hours, m, 0, 0);
+                     return dateObj.getTime();
+                   } catch { return 0; }
+                }
+                const inTime = parseTime(r.checkInTime)
+                const outTime = parseTime(r.checkOutTime)
+                if (inTime && outTime && outTime > inTime) {
+                   totalHours += (outTime - inTime) / (1000 * 60 * 60)
+                   completedShiftsCount++
+                }
+             }
+          })
+        }
+        setWeeklyChartData(chartData)
+        setAvgWorkingHours(completedShiftsCount > 0 ? (totalHours / completedShiftsCount).toFixed(1) : '0')
+        
       } catch (e) {
         console.error('Failed to load dashboard data:', e)
       } finally {
@@ -67,6 +127,18 @@ export function DashboardPage() {
     { icon: AlertTriangle, label: 'Đi trễ', value: stats?.late?.toString() || '0', color: 'text-warning', bg: 'bg-warning-light' },
     { icon: Clock, label: 'Xin nghỉ', value: stats?.leave?.toString() || '0', color: 'text-error', bg: 'bg-error-light' },
   ]
+
+  const formatTime = (timeStr?: string | null) => {
+    if (!timeStr) return '--'
+    try {
+      if (timeStr.includes('T')) {
+        return new Date(timeStr).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+      }
+      return timeStr
+    } catch {
+      return timeStr
+    }
+  }
 
   return (
     <div className="space-y-lg">
@@ -93,14 +165,15 @@ export function DashboardPage() {
             Biểu đồ chấm công tuần
           </h2>
           <div className="flex h-[200px] items-end gap-2">
-            {[65, 80, 72, 90, 85, 60, 45].map((height, i) => (
+            {weeklyChartData.map((data, i) => (
               <div key={i} className="flex flex-1 flex-col items-center gap-1">
                 <div
                   className="w-full rounded-t bg-primary/80 transition-all duration-500"
-                  style={{ height: `${height}%` }}
+                  style={{ height: `${data.value}%`, minHeight: data.value > 0 ? '4px' : '0' }}
+                  title={`${data.value}%`}
                 />
                 <span className="text-label-xs text-neutral-text-muted">
-                  {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'][i]}
+                  {data.label}
                 </span>
               </div>
             ))}
@@ -132,7 +205,7 @@ export function DashboardPage() {
                         {item.userName}
                       </div>
                       <div className="text-label-xs text-neutral-text-muted">
-                        Check-in • {item.checkInTime || '--'}
+                        Check-in • {formatTime(item.checkInTime)}
                       </div>
                     </div>
                   </div>
@@ -159,8 +232,8 @@ export function DashboardPage() {
             <div className="text-label-xs text-neutral-text-secondary">Tỷ lệ đúng giờ</div>
           </div>
           <div className="text-center">
-            <div className="text-headline-xl font-bold text-success">8.5h</div>
-            <div className="text-label-xs text-neutral-text-secondary">TB giờ làm/ngày</div>
+            <div className="text-headline-xl font-bold text-success">{avgWorkingHours}h</div>
+            <div className="text-label-xs text-neutral-text-secondary">TB giờ làm/ca</div>
           </div>
           <div className="text-center">
             <div className="text-headline-xl font-bold text-warning">{pendingLeaves}</div>
