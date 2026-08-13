@@ -13,3 +13,4 @@ graphify-out/cache/
 .idea/
 .vscode/settings.json
 .DS_Store
+backend/build/
