@@ -21,4 +21,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID>, J
     long countByStatus(Attendance.Status status);
 
     boolean existsByUserIdAndCheckInIsNotNullAndDate(UUID userId, LocalDate date);
+
+    boolean existsByUserIdAndShiftIdAndDateAndCheckInIsNotNull(UUID userId, UUID shiftId, LocalDate date);
 }

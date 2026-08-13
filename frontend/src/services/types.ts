@@ -317,8 +317,8 @@ export interface GpsConfigResponse {
   id: string
   latitude: number
   longitude: number
-  radiusMeters: number
-  locationName: string
+  radius: number
+  address: string
   active: boolean
   updatedAt: string
 }
@@ -326,8 +326,8 @@ export interface GpsConfigResponse {
 export interface GpsConfigUpdateRequest {
   latitude: number
   longitude: number
-  radiusMeters: number
-  locationName: string
+  radius: number
+  address: string
   active?: boolean
 }
 

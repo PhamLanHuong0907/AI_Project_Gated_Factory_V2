@@ -87,8 +87,8 @@ public class AttendanceService {
             targetUserId = request.getUserId();
         }
 
-        if (attendanceRepository.existsByUserIdAndCheckInIsNotNullAndDate(targetUserId, request.getDate())) {
-            throw new BadRequestException("Already checked in for date: " + request.getDate());
+        if (attendanceRepository.existsByUserIdAndShiftIdAndDateAndCheckInIsNotNull(targetUserId, request.getShiftId(), request.getDate())) {
+            throw new BadRequestException("Already checked in for this shift on date: " + request.getDate());
         }
 
         Shift shift = shiftRepository.findById(request.getShiftId())

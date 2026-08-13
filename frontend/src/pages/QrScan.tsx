@@ -10,6 +10,7 @@ export function QrScanPage() {
   const [shifts, setShifts] = useState<ShiftResponse[]>([])
   const [selectedShiftId, setSelectedShiftId] = useState<string>('')
   
+  const [completedShifts, setCompletedShifts] = useState<string[]>([])
   const [activeRecord, setActiveRecord] = useState<AttendanceResponse | null>(null)
   const [scanMode, setScanMode] = useState<'CHECK_IN' | 'CHECK_OUT'>('CHECK_IN')
   
@@ -44,7 +45,14 @@ export function QrScanPage() {
       
       const activeShifts = shiftsData.filter((s: ShiftResponse) => s.active)
       setShifts(activeShifts)
-      if (activeShifts.length > 0) {
+      
+      const checkedInShifts = attendanceData.content.map((r: any) => r.shiftId)
+      setCompletedShifts(checkedInShifts)
+
+      const availableShifts = activeShifts.filter((s: ShiftResponse) => !checkedInShifts.includes(s.id))
+      if (availableShifts.length > 0) {
+        setSelectedShiftId(availableShifts[0].id)
+      } else if (activeShifts.length > 0) {
         setSelectedShiftId(activeShifts[0].id)
       }
 
@@ -284,9 +292,14 @@ export function QrScanPage() {
               disabled={scanning || loading}
             >
               <option value="">-- Chọn ca làm việc --</option>
-              {shifts.map((s: ShiftResponse) => (
-                <option key={s.id} value={s.id}>{s.name} ({s.startTime} - {s.endTime})</option>
-              ))}
+              {shifts.map((s: ShiftResponse) => {
+                const alreadyCheckedIn = completedShifts.includes(s.id)
+                return (
+                  <option key={s.id} value={s.id} disabled={alreadyCheckedIn}>
+                    {s.name} ({s.startTime} - {s.endTime}) {alreadyCheckedIn ? '(Đã hoàn thành)' : ''}
+                  </option>
+                )
+              })}
             </select>
           </div>
         ) : (

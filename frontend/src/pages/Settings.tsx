@@ -72,8 +72,8 @@ function GpsSettings() {
         setForm({
           latitude: String(data.latitude ?? 10.762622),
           longitude: String(data.longitude ?? 106.660172),
-          radius: String(data.radiusMeters ?? 100),
-          locationName: data.locationName ?? '',
+          radius: String(data.radius ?? 100),
+          locationName: data.address ?? '',
         })
       } catch (e) { console.warn('Using default config:', e) } finally { setLoading(false) }
     }
@@ -86,8 +86,8 @@ function GpsSettings() {
       await api.config.updateGps({
         latitude: Number(form.latitude),
         longitude: Number(form.longitude),
-        radiusMeters: Number(form.radius),
-        locationName: form.locationName,
+        radius: Number(form.radius),
+        address: form.locationName,
       })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)

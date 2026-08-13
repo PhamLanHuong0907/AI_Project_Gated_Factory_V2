@@ -153,7 +153,7 @@ export function AttendanceHistory() {
 
       const formatGps = (lat?: number | string | null, lng?: number | string | null) => {
         if (!lat || !lng) return 'Văn phòng công ty'
-        if (!gpsData || !gpsData.latitude || !gpsData.longitude || !gpsData.radiusMeters) {
+        if (!gpsData || !gpsData.latitude || !gpsData.longitude || !gpsData.radius) {
           return `${parseFloat(String(lat)).toFixed(4)}, ${parseFloat(String(lng)).toFixed(4)}`
         }
         
@@ -164,7 +164,7 @@ export function AttendanceHistory() {
           parseFloat(String(gpsData.longitude))
         )
         
-        if (distance <= gpsData.radiusMeters) {
+        if (distance <= gpsData.radius) {
           return `Hợp lệ (${Math.round(distance)}m)`
         } else {
           return `Ngoài phạm vi (${Math.round(distance)}m)`
