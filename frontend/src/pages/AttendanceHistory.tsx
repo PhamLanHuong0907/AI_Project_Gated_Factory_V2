@@ -18,6 +18,22 @@ import { AttendanceStatus } from '../services/types'
 import { ManualCheckInModal } from '../components/ManualCheckInModal'
 import { useAuth } from '../services/auth-context'
 
+// Calculate distance in meters using Haversine formula
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3; // metres
+  const phi1 = lat1 * Math.PI/180;
+  const phi2 = lat2 * Math.PI/180;
+  const deltaPhi = (lat2-lat1) * Math.PI/180;
+  const deltaLambda = (lon2-lon1) * Math.PI/180;
+
+  const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) +
+          Math.cos(phi1) * Math.cos(phi2) *
+          Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
 interface AttendanceRecord {
   id: string
   userId: string
@@ -122,9 +138,10 @@ export function AttendanceHistory() {
         attPage++
       }
 
-      const [usersData, shiftsData] = await Promise.all([
+      const [usersData, shiftsData, gpsData] = await Promise.all([
         api.users.getAll(),
         api.shifts.getAll(),
+        api.config.gps().catch(() => null),
       ])
 
       let filteredUsers = usersData
@@ -133,6 +150,26 @@ export function AttendanceHistory() {
       }
       setUsers(filteredUsers.filter((u: any) => u.role !== 'ADMIN'))
       setShifts(shiftsData)
+
+      const formatGps = (lat?: number | string | null, lng?: number | string | null) => {
+        if (!lat || !lng) return 'Văn phòng công ty'
+        if (!gpsData || !gpsData.latitude || !gpsData.longitude || !gpsData.radius) {
+          return `${parseFloat(String(lat)).toFixed(4)}, ${parseFloat(String(lng)).toFixed(4)}`
+        }
+        
+        const distance = calculateDistance(
+          parseFloat(String(lat)), 
+          parseFloat(String(lng)), 
+          parseFloat(String(gpsData.latitude)), 
+          parseFloat(String(gpsData.longitude))
+        )
+        
+        if (distance <= gpsData.radius) {
+          return `Hợp lệ (${Math.round(distance)}m)`
+        } else {
+          return `Ngoài phạm vi (${Math.round(distance)}m)`
+        }
+      }
 
       const records: AttendanceRecord[] = allAttendance.flatMap((att: any) => {
         const user = usersData.find((u: any) => u.id === att.userId)
@@ -156,7 +193,7 @@ export function AttendanceHistory() {
             id: att.id + '-in',
             time: new Date(att.checkInTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: true }),
             scanType: 'Check in',
-            gpsLocation: att.checkInLat && att.checkInLng ? `${parseFloat(att.checkInLat).toFixed(4)}, ${parseFloat(att.checkInLng).toFixed(4)}` : 'Văn phòng công ty',
+            gpsLocation: formatGps(att.checkInLat, att.checkInLng),
             status: att.status || AttendanceStatus.ON_TIME,
           })
         }
@@ -167,7 +204,7 @@ export function AttendanceHistory() {
             id: att.id + '-out',
             time: new Date(att.checkOutTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: true }),
             scanType: 'Check out',
-            gpsLocation: att.checkOutLat && att.checkOutLng ? `${parseFloat(att.checkOutLat).toFixed(4)}, ${parseFloat(att.checkOutLng).toFixed(4)}` : 'Văn phòng công ty',
+            gpsLocation: formatGps(att.checkOutLat, att.checkOutLng),
             status: (att.earlyMinutes && att.earlyMinutes > 0) ? AttendanceStatus.EARLY_LEAVE : AttendanceStatus.ON_TIME,
           })
         }
