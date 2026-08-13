@@ -55,13 +55,20 @@ public class AttendanceService {
         return earthRadiusMeters * c;
     }
 
-    public Page<AttendanceResponse> getAllAttendance(Pageable pageable, AttendanceFilterRequest filter) {
+    public Page<AttendanceResponse> getAllAttendance(Pageable pageable, AttendanceFilterRequest filter, UUID currentUserId, String role) {
         Specification<Attendance> spec = Specification.where(null);
 
+        UUID targetUserId = (filter != null) ? filter.getUserId() : null;
+        if ("ROLE_EMPLOYEE".equals(role) || "EMPLOYEE".equals(role)) {
+            targetUserId = currentUserId;
+        }
+
+        if (targetUserId != null) {
+            final UUID uid = targetUserId;
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("userId"), uid));
+        }
+
         if (filter != null) {
-            if (filter.getUserId() != null) {
-                spec = spec.and((root, query, cb) -> cb.equal(root.get("userId"), filter.getUserId()));
-            }
             if (filter.getStatus() != null && !filter.getStatus().isBlank()) {
                 spec = spec.and((root, query, cb) -> cb.equal(root.get("status"),
                         Attendance.Status.valueOf(filter.getStatus())));

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -339,6 +340,10 @@ public class SalaryConfigController {
     })
     public ResponseEntity<List<SalaryReportResponse>> getSalaryReport(
             @RequestParam(required = false) String month) {
-        return ResponseEntity.ok(salaryConfigService.getSalaryReport(month));
+        String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .findFirst().orElse("");
+        UUID currentUserId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getName());
+        return ResponseEntity.ok(salaryConfigService.getSalaryReport(month, currentUserId, role));
     }
 }

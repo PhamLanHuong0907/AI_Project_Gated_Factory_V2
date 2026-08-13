@@ -45,8 +45,16 @@ public class LeaveRequestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
             @RequestParam(required = false) String search) {
+        String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .findFirst().orElse("");
+        UUID currentUserId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getName());
+        UUID targetUserId = userId;
+        if ("ROLE_EMPLOYEE".equals(role) || "EMPLOYEE".equals(role)) {
+            targetUserId = currentUserId;
+        }
         return ResponseEntity.ok(leaveRequestService.getAllLeaveRequests(
-                pageable, status, userId, dateFrom, dateTo, search));
+                pageable, status, targetUserId, dateFrom, dateTo, search));
     }
 
     @GetMapping("/{id}")

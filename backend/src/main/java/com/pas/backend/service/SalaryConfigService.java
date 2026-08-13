@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -600,8 +602,13 @@ public class SalaryConfigService {
         return response;
     }
 
-    public List<SalaryReportResponse> getSalaryReport(String month) {
+    public List<SalaryReportResponse> getSalaryReport(String month, UUID currentUserId, String role) {
         List<User> users = userRepository.findAll();
+        
+        if ("ROLE_EMPLOYEE".equals(role) || "EMPLOYEE".equals(role)) {
+            users = users.stream().filter(u -> u.getId().equals(currentUserId)).toList();
+        }
+
         return users.stream().map(user -> {
             EmployeeSalaryDetailResponse detail = getEmployeeSalaryDetail(user.getId());
             SalaryReportResponse report = new SalaryReportResponse();

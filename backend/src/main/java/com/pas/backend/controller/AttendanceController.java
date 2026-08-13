@@ -41,7 +41,11 @@ public class AttendanceController {
     public ResponseEntity<Page<AttendanceResponse>> getAll(
             @PageableDefault(size = 20, sort = "date") Pageable pageable,
             AttendanceFilterRequest filter) {
-        return ResponseEntity.ok(attendanceService.getAllAttendance(pageable, filter));
+        String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .findFirst().orElse("");
+        UUID currentUserId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getName());
+        return ResponseEntity.ok(attendanceService.getAllAttendance(pageable, filter, currentUserId, role));
     }
 
     @GetMapping("/{id}")
@@ -106,7 +110,15 @@ public class AttendanceController {
     public ResponseEntity<AttendanceStatsResponse> getStats(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) UUID userId) {
-        return ResponseEntity.ok(attendanceService.getStats(date, userId));
+        String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .findFirst().orElse("");
+        UUID currentUserId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getName());
+        UUID targetUserId = userId;
+        if ("ROLE_EMPLOYEE".equals(role) || "EMPLOYEE".equals(role)) {
+            targetUserId = currentUserId;
+        }
+        return ResponseEntity.ok(attendanceService.getStats(date, targetUserId));
     }
 
     @GetMapping("/export")
@@ -119,7 +131,15 @@ public class AttendanceController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
             @RequestParam(required = false) UUID userId) {
-        byte[] csvData = attendanceService.exportCsv(dateFrom, dateTo, userId);
+        String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .findFirst().orElse("");
+        UUID currentUserId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getName());
+        UUID targetUserId = userId;
+        if ("ROLE_EMPLOYEE".equals(role) || "EMPLOYEE".equals(role)) {
+            targetUserId = currentUserId;
+        }
+        byte[] csvData = attendanceService.exportCsv(dateFrom, dateTo, targetUserId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
