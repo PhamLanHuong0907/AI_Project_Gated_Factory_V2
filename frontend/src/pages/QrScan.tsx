@@ -24,12 +24,14 @@ export function QrScanPage() {
   const scannerRef = useRef<Html5Qrcode | null>(null)
 
   useEffect(() => {
-    loadInitialData()
+    if (user) {
+      loadInitialData()
+    }
     // Ensure scanner is stopped on unmount
     return () => {
       stopScanner()
     }
-  }, [])
+  }, [user])
 
   const loadInitialData = async () => {
     try {
@@ -56,8 +58,15 @@ export function QrScanPage() {
         setSelectedShiftId(activeShifts[0].id)
       }
 
+      // Sort by checkInTime descending to get the most recent shift first
+      const sortedRecords = [...attendanceData.content].sort((a: any, b: any) => {
+        if (!a.checkInTime) return 1
+        if (!b.checkInTime) return -1
+        return new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime()
+      })
+
       // Check if user is currently checked in but not checked out
-      const checkedInRecord = attendanceData.content.find((r: any) => r.checkInTime && !r.checkOutTime)
+      const checkedInRecord = sortedRecords.find((r: any) => r.checkInTime && !r.checkOutTime)
       if (checkedInRecord) {
         setActiveRecord(checkedInRecord)
         setScanMode('CHECK_OUT')
