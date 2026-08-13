@@ -62,7 +62,10 @@ export function QrScanPage() {
       const sortedRecords = [...attendanceData.content].sort((a: any, b: any) => {
         if (!a.checkInTime) return 1
         if (!b.checkInTime) return -1
-        return new Date(b.checkInTime).getTime() - new Date(a.checkInTime).getTime()
+        const timeA = new Date(a.checkInTime).getTime()
+        const timeB = new Date(b.checkInTime).getTime()
+        if (isNaN(timeA) || isNaN(timeB)) return 0
+        return timeB - timeA
       })
 
       // Check if user is currently checked in but not checked out
