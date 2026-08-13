@@ -86,4 +86,4 @@ Sau khi database được khởi tạo, bạn có thể sử dụng các tài kh
 - **Nhân viên:** `employee@pas.vn` / `emp123456`
 
 ---
-*Phát triển bởi đội ngũ Kỹ sư Hệ thống - Precision Attendance System (2026)*
+
