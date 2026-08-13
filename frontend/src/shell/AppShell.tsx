@@ -85,7 +85,7 @@ export function AppShell() {
         <aside className="hidden w-[260px] shrink-0 flex-col border-r border-neutral-border bg-neutral-background md:flex">
           {/* Brand */}
           <div className="px-lg py-lg">
-            <div className="text-headline-lg font-bold text-primary">Admin Portal</div>
+            <div className="text-headline-lg font-bold text-primary">Precision Attendance</div>
             <div className="text-label-xs text-neutral-text-muted">HR Management</div>
           </div>
 
