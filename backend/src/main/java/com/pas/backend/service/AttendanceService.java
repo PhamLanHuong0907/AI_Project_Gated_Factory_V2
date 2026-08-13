@@ -99,7 +99,10 @@ public class AttendanceService {
 
         OffsetDateTime checkInTime = OffsetDateTime.now();
         LocalTime shiftStart = shift.getStartTime();
-        LocalTime checkInLocalTime = checkInTime.toLocalTime();
+        
+        // Render runs on UTC. We must convert to Vietnam timezone before extracting LocalTime
+        LocalTime checkInLocalTime = checkInTime.atZoneSameInstant(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).toLocalTime();
+        
         int lateMinutes = 0;
         Attendance.Status status = Attendance.Status.ON_TIME;
 
@@ -201,7 +204,9 @@ public class AttendanceService {
                 int earlyThresholdMinutes = 0; // Not available in config yet
                 
                 LocalTime shiftEnd = shift.getEndTime();
-                LocalTime checkOutLocal = checkOutTime.toLocalTime();
+                
+                // Convert UTC time to Vietnam timezone before extracting LocalTime
+                LocalTime checkOutLocal = checkOutTime.atZoneSameInstant(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).toLocalTime();
                 
                 if (checkOutLocal.isBefore(shiftEnd.minusMinutes(earlyThresholdMinutes))) {
                     earlyMinutes = (int) Duration.between(checkOutLocal, shiftEnd).toMinutes();
