@@ -103,8 +103,19 @@ const auth = {
 
 const users = {
   async getAll(): Promise<UserResponse[]> {
-    const res = await apiFetch<any>('/api/users?size=1000')
-    return Array.isArray(res) ? res : (res.content || [])
+    let all: UserResponse[] = []
+    let page = 0
+    const size = 200
+    while (true) {
+      const res = await apiFetch<any>(`/api/users?page=${page}&size=${size}`)
+      const content = Array.isArray(res) ? res : (res.content || [])
+      all = all.concat(content)
+      if (!res.totalPages || page >= res.totalPages - 1 || content.length < size) {
+        break
+      }
+      page++
+    }
+    return all
   },
 
   async getById(id: string): Promise<UserResponse> {
@@ -134,8 +145,19 @@ const users = {
 
 const shifts = {
   async getAll(): Promise<ShiftResponse[]> {
-    const res = await apiFetch<any>('/api/shifts?size=1000')
-    return Array.isArray(res) ? res : (res.content || [])
+    let all: ShiftResponse[] = []
+    let page = 0
+    const size = 200
+    while (true) {
+      const res = await apiFetch<any>(`/api/shifts?page=${page}&size=${size}`)
+      const content = Array.isArray(res) ? res : (res.content || [])
+      all = all.concat(content)
+      if (!res.totalPages || page >= res.totalPages - 1 || content.length < size) {
+        break
+      }
+      page++
+    }
+    return all
   },
 
   async getById(id: string): Promise<ShiftResponse> {

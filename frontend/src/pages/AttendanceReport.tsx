@@ -42,17 +42,35 @@ export function AttendanceReportPage() {
     try {
       setLoading(true)
       setError(null)
-      const [usersData, shiftsData, attData, leaveData] = await Promise.all([
+      const [usersData, shiftsData] = await Promise.all([
         api.users.getAll(),
         api.shifts.getAll(),
-        api.attendance.getAll({
-          page: 0,
-          size: 10000,
+      ])
+
+      let allAtt: any[] = []
+      let attPage = 0
+      const attSize = 200
+      while (true) {
+        const attRes = await api.attendance.getAll({
+          page: attPage,
+          size: attSize,
           dateFrom,
           dateTo,
-        }),
-        api.leaveRequests.getAll(0, 10000)
-      ])
+        })
+        allAtt = allAtt.concat(attRes.content)
+        if (!attRes.totalPages || attPage >= attRes.totalPages - 1 || attRes.content.length < attSize) break
+        attPage++
+      }
+
+      let allLeaves: any[] = []
+      let leavePage = 0
+      const leaveSize = 200
+      while (true) {
+        const leaveRes = await api.leaveRequests.getAll(leavePage, leaveSize)
+        allLeaves = allLeaves.concat(leaveRes.content)
+        if (!leaveRes.totalPages || leavePage >= leaveRes.totalPages - 1 || leaveRes.content.length < leaveSize) break
+        leavePage++
+      }
 
       let filteredUsers = usersData.filter((u: any) => u.isActive)
       if (user?.role === 'EMPLOYEE') {
@@ -60,13 +78,13 @@ export function AttendanceReportPage() {
       }
       setUsers(filteredUsers)
       
-      let filteredAtt = attData.content || []
+      let filteredAtt = allAtt
       if (user?.role === 'EMPLOYEE') {
         filteredAtt = filteredAtt.filter((a: any) => a.userId === user.id)
       }
       setAttendance(filteredAtt)
       
-      let filteredLeaves = leaveData.content || []
+      let filteredLeaves = allLeaves
       if (user?.role === 'EMPLOYEE') {
         filteredLeaves = filteredLeaves.filter((l: any) => l.userId === user.id)
       }

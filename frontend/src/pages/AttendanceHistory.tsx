@@ -103,15 +103,26 @@ export function AttendanceHistory() {
       setLoading(true)
       setError(null)
 
-      const [attendanceRes, usersData, shiftsData] = await Promise.all([
-        api.attendance.getAll({ 
-          page: 0, 
-          size: 1000,
+      let allAttendance: any[] = []
+      let attPage = 0
+      const attSize = 200
+      while (true) {
+        const attRes = await api.attendance.getAll({
+          page: attPage,
+          size: attSize,
           userId: user?.role === 'EMPLOYEE' ? user.id : undefined,
           dateFrom: dateFrom || undefined,
           dateTo: dateTo || undefined,
           shiftId: selectedShiftId !== 'all' ? selectedShiftId : undefined
-        }),
+        })
+        allAttendance = allAttendance.concat(attRes.content)
+        if (!attRes.totalPages || attPage >= attRes.totalPages - 1 || attRes.content.length < attSize) {
+          break
+        }
+        attPage++
+      }
+
+      const [usersData, shiftsData] = await Promise.all([
         api.users.getAll(),
         api.shifts.getAll(),
       ])
@@ -123,7 +134,7 @@ export function AttendanceHistory() {
       setUsers(filteredUsers.filter((u: any) => u.role !== 'ADMIN'))
       setShifts(shiftsData)
 
-      const records: AttendanceRecord[] = attendanceRes.content.flatMap((att: any) => {
+      const records: AttendanceRecord[] = allAttendance.flatMap((att: any) => {
         const user = usersData.find((u: any) => u.id === att.userId)
         const shift = shiftsData.find((s: any) => s.id === att.shiftId)
 
