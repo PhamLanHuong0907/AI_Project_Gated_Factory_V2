@@ -309,10 +309,10 @@ export function AttendanceHistory() {
   }
 
   const stats = {
-    onTimeCheckIn: records.filter((r) => r.status !== AttendanceStatus.ABSENT && r.status !== AttendanceStatus.ON_LEAVE && r.time !== '-' && (!r.lateMinutes || r.lateMinutes === 0)).length,
-    late: records.filter((r) => r.lateMinutes && r.lateMinutes > 0).length,
-    onTimeCheckOut: records.filter((r) => r.status !== AttendanceStatus.ABSENT && r.status !== AttendanceStatus.ON_LEAVE && r.scanType === 'Check out' && (!r.earlyMinutes || r.earlyMinutes === 0)).length,
-    earlyLeave: records.filter((r) => r.earlyMinutes && r.earlyMinutes > 0).length,
+    onTimeCheckIn: records.filter((r) => r.scanType === 'Check in' && r.status !== AttendanceStatus.ABSENT && r.status !== AttendanceStatus.ON_LEAVE && r.time !== '-' && (!r.lateMinutes || r.lateMinutes === 0)).length,
+    late: records.filter((r) => r.scanType === 'Check in' && r.lateMinutes && r.lateMinutes > 0).length,
+    onTimeCheckOut: records.filter((r) => r.scanType === 'Check out' && r.status !== AttendanceStatus.ABSENT && r.status !== AttendanceStatus.ON_LEAVE && (!r.earlyMinutes || r.earlyMinutes === 0)).length,
+    earlyLeave: records.filter((r) => r.scanType === 'Check out' && r.earlyMinutes && r.earlyMinutes > 0).length,
     absent: calculatedAbsents,
     leave: records.filter((r) => r.status === AttendanceStatus.ON_LEAVE).length,
   }
